@@ -1,0 +1,2157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>UK 28 Nov–6 Dec</title>
+<meta name="description" content="London, Nottingham, the Highlands, and Cardiff. 28 November to 6 December 2026.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   Design System — edit :root to change theme
+   ═══════════════════════════════════════════ */
+:root {
+  --bg-primary:    #ffffff;
+  --bg-secondary:  #f5f5f7;
+  --bg-tertiary:   #fbfbfd;
+  --bg-grouped:    #f2f2f7;
+  --bg-elevated:   #ffffff;
+  --text-primary:   #1d1d1f;
+  --text-secondary: #86868b;
+  --text-tertiary:  #aeaeb2;
+  --accent:        #0071e3;
+  --accent-hover:  #0077ed;
+  --tint-red:    #ff3b30;
+  --tint-orange: #ff9500;
+  --tint-green:  #34c759;
+  --tint-blue:   #007aff;
+  --tint-purple: #af52de;
+  --tint-pink:   #ff2d55;
+  --separator:  rgba(60, 60, 67, .12);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:  0 4px 14px rgba(0,0,0,.08);
+  --shadow-lg:  0 8px 30px rgba(0,0,0,.12);
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --radius-xl:  20px;
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+               "Helvetica Neue", "Arial", sans-serif;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.47059;
+  letter-spacing: -0.022em;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Map ── */
+#map { width: 100%; height: 40vh; min-height: 280px; position: sticky; top: 0; z-index: 100; }
+.locate-btn {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(8px);
+  border: none; box-shadow: 0 1px 4px rgba(0,0,0,.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.locate-btn.active { color: #007aff; }
+@keyframes loc-pulse {
+  0%   { transform: scale(1); opacity: .55; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.loc-pulse {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(0,122,255,.25);
+  animation: loc-pulse 1.6s ease-out infinite;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex; gap: 6px; padding: 12px 16px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  background: rgba(255,255,255,.85); -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px); position: sticky; top: 40vh; z-index: 99;
+  border-bottom: .5px solid var(--separator); scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex-shrink: 0; padding: 7px 16px; border-radius: 980px; border: none;
+  background: var(--bg-grouped); color: var(--text-secondary);
+  font-size: 14px; font-weight: 500; cursor: pointer; transition: all .25s ease;
+  white-space: nowrap; letter-spacing: -0.01em;
+}
+.tab:active { transform: scale(.96); }
+.tab.active { background: var(--accent); color: #fff; }
+
+/* ── Main content ── */
+.content { max-width: 680px; margin: 0 auto; padding: 16px 16px calc(24px + var(--safe-bottom)); }
+
+/* ── Overview ── */
+.hero { text-align: center; padding: 28px 20px 20px; }
+.hero h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; }
+.hero .subtitle { font-size: 17px; color: var(--text-secondary); margin-top: 6px; font-weight: 400; }
+
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.info-card { background: var(--bg-elevated); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); }
+.info-card .label { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .02em; margin-bottom: 6px; }
+.info-card .value { font-size: 15px; font-weight: 600; line-height: 1.4; }
+
+/* ── Section headers ── */
+.section-head { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .03em; padding: 20px 0 8px; }
+
+/* ── Day header ── */
+.day-head { padding: 20px 0 12px; }
+.day-head h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.day-head p { font-size: 15px; color: var(--text-secondary); margin-top: 2px; }
+
+/* ── Day photos ── */
+.day-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 4px 0 14px; }
+.day-photos figure { margin: 0; }
+.day-photos img { width: 100%; height: 148px; object-fit: cover; border-radius: 12px; display: block; background: var(--bg-elevated); }
+.day-photos figcaption { font-size: 11px; color: var(--text-secondary); margin-top: 4px; line-height: 1.3; }
+.day-photos.one { grid-template-columns: 1fr; }
+.day-photos.one img { height: 180px; }
+
+/* ── Route bar ── */
+.route-bar { background: var(--bg-elevated); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; box-shadow: var(--shadow-sm); font-size: 13px; color: var(--text-secondary); line-height: 1.7; white-space: pre-line; }
+.route-bar strong { color: var(--text-primary); }
+
+/* ── Timeline ── */
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 20px; bottom: 20px; width: 1.5px; background: var(--separator); }
+.tl-item { position: relative; margin-bottom: 10px; }
+.tl-dot { position: absolute; left: -20px; top: 18px; width: 10px; height: 10px; border-radius: 50%; z-index: 1; box-shadow: 0 0 0 3px var(--bg-secondary); }
+.tl-dot.food    { background: var(--tint-red); }
+.tl-dot.spot    { background: var(--tint-blue); }
+.tl-dot.hotel   { background: var(--tint-orange); }
+.tl-dot.drink   { background: var(--tint-purple); }
+.tl-dot.transport { background: var(--text-tertiary); }
+
+/* ── Card ── */
+.card { background: var(--bg-elevated); border-radius: var(--radius-md); padding: 14px 16px; box-shadow: var(--shadow-sm); transition: box-shadow .25s ease; cursor: pointer; }
+.card:active { box-shadow: var(--shadow-md); }
+.card .time { font-size: 12px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .01em; }
+.card .name { font-size: 17px; font-weight: 600; margin: 2px 0 4px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 6px; }
+.card .desc { font-size: 14px; color: var(--text-secondary); line-height: 1.45; }
+
+/* Badge */
+.badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 4px; }
+.badge.food   { background: rgba(255,59,48,.1);  color: var(--tint-red); }
+.badge.spot   { background: rgba(0,122,255,.1);  color: var(--tint-blue); }
+.badge.drink  { background: rgba(175,82,222,.1); color: var(--tint-purple); }
+
+/* Budget */
+.budget { display: inline-block; margin-top: 6px; padding: 3px 10px; background: var(--bg-grouped); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+
+/* Payment */
+.pays { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+.pay { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+.pay.ok  { background: rgba(52,199,89,.1);  color: var(--tint-green); }
+.pay.no  { background: rgba(255,59,48,.08); color: var(--tint-red); }
+.pay.idk { background: rgba(255,149,0,.1);  color: var(--tint-orange); }
+
+/* Links row */
+.links { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 8px 14px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; border: none; cursor: pointer;
+  text-decoration: none !important; transition: filter .2s;
+}
+.btn:active { filter: brightness(.9); }
+.btn.nav    { background: var(--accent); color: #fff; }
+.btn.xhs    { background: #ff2442; color: #fff; }
+.btn.maps   { background: #1a73e8; color: #fff; }
+.btn.ig     { background: #e1306c; color: #fff; }
+.btn.x      { background: #111; color: #fff; }
+.btn.rsv    { background: var(--tint-green); color: #fff; }
+
+/* Action Sheet */
+.as-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.35); backdrop-filter: blur(2px);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+}
+.as-overlay.show { opacity: 1; pointer-events: auto; }
+.as-sheet {
+  width: 100%; max-width: 420px;
+  padding: 0 8px 34px;
+  transform: translateY(100%); transition: transform .3s cubic-bezier(.22,1,.36,1);
+}
+.as-overlay.show .as-sheet { transform: translateY(0); }
+.as-group {
+  background: rgba(255,255,255,.88); backdrop-filter: blur(20px);
+  border-radius: 14px; overflow: hidden; margin-bottom: 8px;
+}
+.as-group .as-item {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 16px; font-size: 18px; color: #007aff; font-weight: 500;
+  border: none; background: none; width: 100%; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.as-group .as-item + .as-item { border-top: .5px solid rgba(0,0,0,.12); }
+.as-group .as-item:active { background: rgba(0,0,0,.06); }
+.as-cancel { font-weight: 600; }
+
+/* Details — default open */
+.details {
+  margin-top: 10px; padding-top: 10px;
+  border-top: .5px solid var(--separator);
+  font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+}
+.details.closed { display: none; }
+
+/* ── Overview day list ── */
+.day-list .card { margin-bottom: 8px; }
+.day-list .card .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+
+/* ── Payment summary ── */
+.pay-summary { background: var(--bg-elevated); border-radius: var(--radius-md); padding: 14px 16px; box-shadow: var(--shadow-sm); font-size: 13px; line-height: 1.7; margin-bottom: 10px; }
+.pay-summary h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.pay-summary .warn { color: var(--tint-red); }
+.pay-summary .ok-text { color: var(--tint-green); }
+
+/* ── Legend ── */
+.legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 8px 0; font-size: 12px; color: var(--text-secondary); }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ── Leaflet overrides ── */
+.leaflet-popup-content-wrapper { border-radius: var(--radius-md) !important; box-shadow: var(--shadow-lg) !important; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important; }
+.leaflet-popup-content { font-size: 14px !important; line-height: 1.5 !important; margin: 12px 14px !important; }
+.leaflet-popup-content a { color: var(--accent) !important; }
+.leaflet-popup-tip { background: #fff !important; }
+.leaflet-control-zoom a { width: 34px !important; height: 34px !important; line-height: 34px !important; font-size: 16px !important; border-radius: 10px !important; background: rgba(255,255,255,.85) !important; -webkit-backdrop-filter: blur(10px) !important; backdrop-filter: blur(10px) !important; border: .5px solid var(--separator) !important; color: var(--text-primary) !important; }
+.leaflet-control-zoom { border-radius: 12px !important; overflow: hidden; box-shadow: var(--shadow-md) !important; border: none !important; }
+.leaflet-control-attribution { font-size: 9px !important; opacity: .5; }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+<div class="tabs" id="tabs"></div>
+<div class="content" id="content"></div>
+
+<script src="basemap.js"></script>
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  REPLACE THIS SECTION — Hotel and Days data                 ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+const HOTEL = { name: 'ibis London City Shoreditch', lat: 51.51569, lng: -0.07252 };
+
+const DAYS = [
+  {
+    "id": 0,
+    "label": "Overview",
+    "color": "#0071e3",
+    "locations": []
+  },
+  {
+    "id": 1,
+    "label": "Sat 28",
+    "date": "Saturday 28 November · Columbia Road, Hyde Park, Regent Street · ibis Shoreditch",
+    "title": "Flowers, Wonderland, lights",
+    "color": "#ff9500",
+    "images": [
+      {
+        "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/London_-_Columbia_Flower_Market_-_2164.jpg/1280px-London_-_Columbia_Flower_Market_-_2164.jpg",
+        "alt": "Columbia Road Flower Market"
+      },
+      {
+        "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/%27Winter_Wonderland%27_-_geograph.org.uk_-_8218640.jpg/1280px-%27Winter_Wonderland%27_-_geograph.org.uk_-_8218640.jpg",
+        "alt": "Hyde Park Winter Wonderland"
+      }
+    ],
+    "route": "This day only works if MH2 actually lands on Saturday morning. The published winter schedule leaves Kuala Lumpur at 23:30 and lands Heathrow Terminal 4 at 05:35 the next day. If your ticket departs KL on the 28th, you land on Sunday and this Saturday plan moves.\n\nThree hops, on purpose. Columbia Road only happens on Saturday, so the morning stays east. Hyde Park Winter Wonderland is open from 10:00 today and is the festive afternoon with friends. Book the arrival hour. Regent Street’s angels are already on, lit 15:00–midnight, so the walk back east is the lights. Dinner stays in Shoreditch.\n\nCarnaby switched on 4 November. Regent Street switched on 5 November. Oxford Street’s 2026 switch-on was not announced when this was written, so do not count on it.",
+    "locations": [
+      {
+        "name": "Heathrow Terminal 4",
+        "lat": 51.4597,
+        "lng": -0.44736,
+        "type": "transport",
+        "time": "05:35",
+        "desc": "MH2 arrival. Free train to Terminals 2 & 3, then the Elizabeth line to Liverpool Street.",
+        "gmap": "Heathrow+Terminal+4",
+        "detail": "Malaysia Airlines uses Terminal 4. The Elizabeth line does not stop at T4. Take the free Heathrow train to Terminals 2 & 3, then the Elizabeth line to Liverpool Street, and walk to Columbia Road.\nA backpack does not need a hotel stop. Out of the terminal around 06:15–06:45 means the market around 8:00–8:30. Trains are running by then.\nCheck the ticket date before you rely on Saturday.",
+        "mapsUrl": "https://maps.google.com/?cid=14393833855376895021&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Columbia Road Flower Market",
+        "lat": 51.52913,
+        "lng": -0.06983,
+        "type": "spot",
+        "time": "09:00",
+        "desc": "Saturday-only market. Meet friends here, a 15-minute walk from the hotel.",
+        "gmap": "Columbia+Road+Flower+Market",
+        "detail": "Open Saturday morning, done by early afternoon. This is the one London thing that cannot move to Sunday.\nWeather-sensitive. If it is pouring, meet at Old Spitalfields Market instead and keep the same early lunch.",
+        "mapsUrl": "https://maps.google.com/?cid=15833224257972022099&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Dishoom Shoreditch",
+        "lat": 51.5245,
+        "lng": -0.0766,
+        "type": "food",
+        "time": "11:45",
+        "desc": "Early lunch with friends. Order the Chicken Ruby. Book it, then leave.",
+        "gmap": "Dishoom+Shoreditch",
+        "budget": "£25–35",
+        "detail": "Google: 4.8 from 48,841 reviews, moderate. Saturday hours 9:00–midnight.\n小红书: an August 2026 note, three visits, says Chicken Ruby is the plate and that the busy branches queue. No closure.\nInstagram: no lookup this pass.\nX: no login, so no live warning was checked. The link is a live search.\nYou need to be out by 12:45. If the wait is past 20 minutes, eat at Beigel Bake or Poppies and go. Central line from Liverpool Street to Marble Arch is about 25 minutes.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhs": "https://www.rednote.com/search_result/6a7a00440000000010035ec9?xsec_token=ABd1oBZJhpEYynzeGHw_mVa99fcV8mM12YMsU73FI_8Ss=&xsec_source=",
+        "xhsKeyword": "Dishoom Shoreditch",
+        "x": "https://x.com/search?q=%22Dishoom%22%20Shoreditch&f=live",
+        "reserve": "https://www.dishoom.com/",
+        "mapsUrl": "https://maps.google.com/?cid=16680674108387061240&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Hyde Park Winter Wonderland",
+        "lat": 51.50817,
+        "lng": -0.15831,
+        "type": "spot",
+        "time": "13:30",
+        "desc": "Book an arrival hour. Two hours with friends, not every ride. Open 10:00–22:00 today.",
+        "gmap": "Hyde+Park+Winter+Wonderland",
+        "detail": "Google: 4.2 from 4,867 reviews. Louisa Duckworth Walk, Park Lane side. 19 November 2026 to 3 January 2027, closed Christmas Day. Saturday 28 November is a 10:00 opening. You must enter in the hour on the ticket, then you can stay.\nWeekday tickets in November can be the £1 off-peak price. Saturday is not that price. Book ahead.\nBratwurst, raclette, and mulled wine are fine. Skip any seafood stall.\nLeave by 16:15 so Regent Street still has light in the sky and the angels are on.",
+        "mapsUrl": "https://maps.google.com/?cid=1463865053577666603",
+        "reserve": "https://hydeparkwinterwonderland.com/tickets-guide/"
+      },
+      {
+        "name": "Carnaby Street",
+        "lat": 51.51319,
+        "lng": -0.13885,
+        "type": "spot",
+        "time": "16:40",
+        "desc": "Lights have been on since 4 November. A short side step at Oxford Circus.",
+        "gmap": "Carnaby+Street+London",
+        "detail": "This year’s display is Press Play on Christmas, a 1990s theme. It is free. Five minutes is enough, then walk south.",
+        "mapsUrl": "https://maps.google.com/?cid=15735548628012015969"
+      },
+      {
+        "name": "Regent Street lights",
+        "lat": 51.513,
+        "lng": -0.14051,
+        "type": "spot",
+        "time": "16:50",
+        "desc": "The angels. Lit 15:00–midnight. Walk down to Piccadilly Circus.",
+        "gmap": "Regent+Street+London",
+        "detail": "Spirit of Christmas switched on 5 November and runs to 5 January 2027. About 30 illuminated angels over Regent Street. Free.\nLeave Piccadilly Circus by 18:20. Central line toward Liverpool Street, then a short walk to Curtain Road.",
+        "mapsUrl": "https://maps.google.com/?cid=7673397678940813715"
+      },
+      {
+        "name": "Manteca",
+        "lat": 51.52402,
+        "lng": -0.08057,
+        "type": "food",
+        "time": "19:30",
+        "desc": "Dinner, Curtain Road, about 10 minutes from the hotel. Book 19:30. Skip the crab pasta.",
+        "gmap": "Manteca+restaurant+Shoreditch",
+        "budget": "£45–70",
+        "detail": "Google: 4.4 from 3,504 reviews, expensive. Saturday dinner from 17:00.\nThe review summary repeats truffle tagliatelle and also a crab tonnarelli. Crab is off the list. Order another pasta.\n小红书 / Instagram / X: no store note opened this pass. X link is a live search.\nBrat, on Redchurch Street, is the expensive backup. Its famous plate is whole turbot, which is fish, so it is allowed. St John is the backup on the hotel’s street, with a warning.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Manteca Shoreditch",
+        "x": "https://x.com/search?q=Manteca%20London%20restaurant&f=live",
+        "reserve": "https://www.mantecarestaurant.co.uk/",
+        "mapsUrl": "https://maps.google.com/?cid=11687346030864055065&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "ibis London City Shoreditch",
+        "lat": 51.51569,
+        "lng": -0.07252,
+        "type": "hotel",
+        "time": "21:30",
+        "desc": "Check in after dinner. 5 Commercial Street. The backpack stayed with you all day.",
+        "gmap": "ibis+London+City+Shoreditch",
+        "detail": "The night is here. St John Bread and Wine is on the same street if dinner changes.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=11631303964893117437&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Old Spitalfields Market",
+        "lat": 51.51966,
+        "lng": -0.07555,
+        "type": "spot",
+        "time": "—",
+        "desc": "The indoor swap if Columbia Road is pouring. Do not add it on top of the flower market.",
+        "gmap": "Old+Spitalfields+Market",
+        "detail": "Brick Lane is the street between here and Dishoom. Beigel Bake is the no-queue bite on that walk.",
+        "mapsUrl": "https://maps.google.com/?cid=11741516083306353852&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Tower Bridge",
+        "lat": 51.50546,
+        "lng": -0.07536,
+        "type": "spot",
+        "time": "—",
+        "desc": "Cut today. Wonderland and the lights use the afternoon.",
+        "gmap": "Tower+Bridge+London",
+        "detail": "Look from the bridge only if Winter Wonderland is miserable and you have already left the park. Skip the paid upper walkway. Sunday’s river walk is Southbank, not this bridge.",
+        "mapsUrl": "https://maps.google.com/?cid=11418949534774619949&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Beigel Bake",
+        "lat": 51.5245,
+        "lng": -0.07176,
+        "type": "food",
+        "time": "—",
+        "desc": "Salt beef bagel on Brick Lane. The no-queue bite if Dishoom is a line.",
+        "gmap": "Beigel+Bake+Brick+Lane",
+        "budget": "£5–8",
+        "detail": "Google: 4.4 from 14,748 reviews, inexpensive. It is a counter, not a sit-down lunch. Cash is useful here.",
+        "pay": {
+          "card": 0.5,
+          "cash": 1
+        },
+        "xhsKeyword": "Beigel Bake Brick Lane",
+        "mapsUrl": "https://maps.google.com/?cid=14547155226860107020&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Poppies Spitalfields",
+        "lat": 51.5202,
+        "lng": -0.07404,
+        "type": "food",
+        "time": "—",
+        "desc": "Fish and chips, Hanbury Street. Fish is fine. Not a shellfish place.",
+        "gmap": "Poppies+Spitalfields",
+        "budget": "£15–25",
+        "detail": "Google: 4.2 from 5,976 reviews, moderate. Weaker score than Dishoom, so this is the queue escape, not the plan. Haddock or cod.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Poppies Spitalfields",
+        "mapsUrl": "https://maps.google.com/?cid=6297448635320359206&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "St John Bread and Wine",
+        "lat": 51.51974,
+        "lng": -0.07422,
+        "type": "food",
+        "time": "—",
+        "desc": "On Commercial Street, two minutes from the hotel. Famous, and the menu leans offal.",
+        "gmap": "St+John+Bread+and+Wine",
+        "budget": "£50–70",
+        "detail": "Google: 4.5 from 1,321 reviews, expensive. Saturday dinner 18:00–21:30.\n小红书: a 2024 note likes it for a long table with friends, and the plates they praise include chicken liver, lamb heart, sweetbreads, and brown crab. Skip the crab. Only choose this if the table is happy with a British offal menu.\nBook. It is the right backup if Manteca is full, because you can walk home.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhs": "https://www.rednote.com/search_result/66f68924000000002c02e040?xsec_token=ABTpLkTxgVXMzQMmt9BmHhGvonVRlf9GL4mDelhx_-FS0=&xsec_source=",
+        "xhsKeyword": "St John Bread and Wine",
+        "mapsUrl": "https://maps.google.com/?cid=16718733793397535835&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Brat",
+        "lat": 51.52425,
+        "lng": -0.07674,
+        "type": "food",
+        "time": "—",
+        "desc": "Redchurch Street. Excellent and very expensive. Turbot is fish, so it is allowed.",
+        "gmap": "Brat+restaurant+Shoreditch",
+        "budget": "£80+",
+        "detail": "Google: 4.5 from 2,551 reviews, very expensive. Open Saturday all afternoon and evening. Book. Steak is the plate if you do not want the whole turbot.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Brat Shoreditch",
+        "mapsUrl": "https://maps.google.com/?cid=13589044207895193889&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Sky Garden",
+        "lat": 51.51124,
+        "lng": -0.08355,
+        "type": "spot",
+        "time": "—",
+        "desc": "Free, but timed tickets go early. Do not build the day around it.",
+        "gmap": "Sky+Garden+London",
+        "detail": "In the City, a short walk from the hotel. Worth it only if you already hold a ticket. Otherwise it is a booking lottery on a day that already has a market and a dinner.",
+        "reserve": "https://skygarden.london/",
+        "mapsUrl": "https://maps.google.com/?cid=15354298128763884164&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "label": "Sun 29",
+    "date": "Sunday 29 November · Museum, Somerset House, Southbank · Otherwander",
+    "title": "Museum, then the river market",
+    "color": "#007aff",
+    "images": [
+      {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/1/19/British_Museum_Great_Court_roof.jpg",
+        "alt": "British Museum, Great Court"
+      },
+      {
+        "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Southbank_Christmas_market_-_1.jpg/1280px-Southbank_Christmas_market_-_1.jpg",
+        "alt": "Southbank Christmas market"
+      }
+    ],
+    "route": "A longer Sunday, still one walk. Museum for ninety minutes, lunch in Covent Garden, Somerset House courtyard, then the Southbank Winter Market under Hungerford Bridge, then Leicester Square on the way back to the pod hotel.\n\nThe Southbank market is free, 11:00–22:00. Somerset House is free to look at. Skating at either rink is optional and needs a ticket. Christmas at Kew is the one that does not fit: it is an evening trail in Kew and it deletes this dinner.",
+    "locations": [
+      {
+        "name": "Leave ibis Shoreditch",
+        "lat": 51.51569,
+        "lng": -0.07252,
+        "type": "hotel",
+        "time": "09:15",
+        "desc": "Check out. Tube to the museum with the backpack.",
+        "gmap": "ibis+London+City+Shoreditch",
+        "detail": "Central line from Liverpool Street, or Elizabeth line to Tottenham Court Road. About 25 minutes. No bag drop.",
+        "mapsUrl": "https://maps.google.com/?cid=11631303964893117437&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "British Museum",
+        "lat": 51.51941,
+        "lng": -0.12696,
+        "type": "spot",
+        "time": "10:00",
+        "desc": "Free. Ninety minutes, then leave toward Covent Garden.",
+        "gmap": "British+Museum",
+        "detail": "Sunday opening is normally 10:00. The backpack is fine in the galleries, or use the cloakroom if you want it off your shoulders.\nA short loop: Great Court, Rosetta Stone, Parthenon sculptures. Out by 11:30.",
+        "reserve": "https://www.britishmuseum.org/",
+        "mapsUrl": "https://maps.google.com/?cid=3436696222068785831&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Bancone",
+        "lat": 51.50958,
+        "lng": -0.12641,
+        "type": "food",
+        "time": "12:00",
+        "desc": "Pasta lunch before the river. Covent Garden’s lights have been on since 12 November.",
+        "gmap": "Bancone+Covent+Garden",
+        "budget": "£25–35",
+        "detail": "Google: 4.4 from 4,149 reviews, moderate. Sunday 11:30–21:30.\nThe review summary repeats the silk handkerchief pasta. Not a seafood restaurant.\n小红书 / Instagram / X: no store note this pass.\nEat and go. The market is grazing, not a second lunch.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Bancone Covent Garden",
+        "x": "https://x.com/search?q=Bancone%20Covent%20Garden&f=live",
+        "mapsUrl": "https://maps.google.com/?cid=196478056344732283&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Somerset House",
+        "lat": 51.51106,
+        "lng": -0.11715,
+        "type": "spot",
+        "time": "13:15",
+        "desc": "Courtyard, tree, and the rink. Looking is free. Skating needs a ticket.",
+        "gmap": "Somerset+House+London",
+        "detail": "Skate runs 11 November 2026 to 10 January 2027. Adult tickets are about £13–£28.50 plus a £1.50 fee. Sessions are 45 minutes.\nDo not book a skate unless you are happy to move lunch. The courtyard is the plan. Fortnum’s and the chalet are there if Bancone was a queue.\nThen walk west along the river, about 15 minutes, to the market under Hungerford Bridge.",
+        "mapsUrl": "https://maps.google.com/?cid=304534777332334753",
+        "reserve": "https://www.somersethouse.org.uk/whats-on/skate-somerset-house"
+      },
+      {
+        "name": "Southbank Winter Market",
+        "lat": 51.50505,
+        "lng": -0.118,
+        "type": "spot",
+        "time": "14:15",
+        "desc": "The Christmas market. Free. Queen’s Walk, under Hungerford Bridge.",
+        "gmap": "Southbank+Centre+Winter+Market",
+        "detail": "Stalls 11:00–22:00, bars to 23:00, 2 November 2026 to 3 January 2027. Google’s place score is 3.9 from 1,558 reviews. You are here for the walk and a snack, not because that score is strong.\nBratwurst, raclette, and hot chocolate are the safe plates. Skip seafood stalls. This is not dinner.\nJimmy’s Fire & Fromage is the Alpine cabin on the same walk if you want one sit-down plate. Still leave by 15:30.",
+        "mapsUrl": "https://maps.google.com/?cid=15759610803353928926",
+        "reserve": "https://www.southbankcentre.co.uk/activity/winter-market/"
+      },
+      {
+        "name": "Leicester Square",
+        "lat": 51.51036,
+        "lng": -0.13006,
+        "type": "spot",
+        "time": "15:45",
+        "desc": "Christmas market around the square, and an ice rink if you want one more ticket.",
+        "gmap": "Leicester+Square+London",
+        "detail": "Skate Leicester Square runs 31 October 2026 to 3 January 2027. Sessions are 45 minutes, from about £15, and some tickets are held for walk-ins.\nThe square itself is free. Five to twenty minutes, then Dean Street is a short walk. The Trafalgar Square tree lighting is 3 December, after you have left London, so do not wait on a ceremony.",
+        "mapsUrl": "https://maps.google.com/?cid=10549348086484860886"
+      },
+      {
+        "name": "Otherwander Soho",
+        "lat": 51.51509,
+        "lng": -0.13367,
+        "type": "hotel",
+        "time": "16:30",
+        "desc": "91–92 Dean Street. Check in before dinner. Pod hotel, online check-in, no front desk.",
+        "gmap": "Otherwander+Soho+Dean+Street",
+        "detail": "Adults only. You are already in Soho. The night is here.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=6409728806665118880&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Flat Iron Soho",
+        "lat": 51.51209,
+        "lng": -0.13836,
+        "type": "food",
+        "time": "19:00",
+        "desc": "Steak on Beak Street, a short walk from the pod hotel. Queue likely.",
+        "gmap": "Flat+Iron+Soho+Beak+Street",
+        "budget": "£20–30",
+        "detail": "Google: 4.6 from 10,352 reviews, moderate. Sunday 11:30–22:00.\n小红书: a March 2026 note puts the steak around £13–15, says branches queue, and mentions the free ice-cream token.\nInstagram: the Soho location page is the representative link.\nX: no login. Link is a live search.\nAsk for medium-rare. This is the solo dinner. No booking stress if you can wait.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhs": "https://www.rednote.com/search_result/69b3c46e000000001a02ed2e?xsec_token=ABGp8_5b9tqEnUxEVtK04J_auj7GHAS-qgmSPwz1_du40=&xsec_source=",
+        "xhsKeyword": "Flat Iron Soho",
+        "instagram": "https://www.instagram.com/explore/locations/316347791/flat-iron-soho/",
+        "x": "https://x.com/search?q=%22Flat%20Iron%22%20Soho%20steak&f=live",
+        "mapsUrl": "https://maps.google.com/?cid=6326893433944503115&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "National Gallery",
+        "lat": 51.50893,
+        "lng": -0.1283,
+        "type": "spot",
+        "time": "—",
+        "desc": "Trafalgar Square. Free. The indoor swap if you leave the British Museum early.",
+        "gmap": "National+Gallery+London",
+        "detail": "On the same walk south. Do one museum properly, not both at full length. Sunday hours are normally into the evening.",
+        "mapsUrl": "https://maps.google.com/?cid=4805205997576757428&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "BAO Soho",
+        "lat": 51.51322,
+        "lng": -0.13656,
+        "type": "food",
+        "time": "—",
+        "desc": "Pork and fried-chicken buns, Lexington Street. Sunday lunch or a lighter dinner.",
+        "gmap": "BAO+Soho",
+        "budget": "£20–30",
+        "detail": "Google: 4.8 from 9,454 reviews, moderate. Sunday 12:00–21:00, no afternoon closure.\nThe summary repeats classic pork bao and fried chicken, not a shellfish menu.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "BAO Soho",
+        "mapsUrl": "https://maps.google.com/?cid=17075063459011009932&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "The Devonshire",
+        "lat": 51.51063,
+        "lng": -0.13534,
+        "type": "drink",
+        "time": "—",
+        "desc": "The hard-to-book Soho pub. Steak is fine. Scallops are a signature, so skip those.",
+        "gmap": "The+Devonshire+Soho",
+        "budget": "£30–50",
+        "detail": "Google: 4.5 from 3,414 reviews. Sunday until 22:00. People queue for a table upstairs. Use it only if you already have a booking. Order the steak, not the scallops.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "The Devonshire Soho",
+        "mapsUrl": "https://maps.google.com/?cid=4542734828589744142&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Rules",
+        "lat": 51.51083,
+        "lng": -0.12317,
+        "type": "food",
+        "time": "—",
+        "desc": "Maiden Lane. Historic game restaurant. Book, and it is a spend.",
+        "gmap": "Rules+restaurant+Covent+Garden",
+        "budget": "£60+",
+        "detail": "Google: 4.6 from 3,856 reviews. The classic London dining room if you want one old restaurant instead of Flat Iron. Not on the way home as casually as Beak Street.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Rules restaurant Covent Garden",
+        "mapsUrl": "https://maps.google.com/?cid=13163184803110165730&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Dishoom Covent Garden",
+        "lat": 51.51252,
+        "lng": -0.12683,
+        "type": "food",
+        "time": "—",
+        "desc": "Only if you skipped Dishoom yesterday. This branch queues.",
+        "gmap": "Dishoom+Covent+Garden",
+        "budget": "£25–35",
+        "detail": "Google: 4.7 from 30,024 reviews. Sunday from 8:00. The same Chicken Ruby. Do not eat Dishoom twice unless you want to.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Dishoom Covent Garden",
+        "mapsUrl": "https://maps.google.com/?cid=11256896404490944630&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Borough Market",
+        "lat": 51.50558,
+        "lng": -0.09048,
+        "type": "spot",
+        "time": "—",
+        "desc": "Further east along the river. A lot of the stalls are shellfish.",
+        "gmap": "Borough+Market",
+        "detail": "Sunday is a market day. Add it only after Southbank, and only if you still want to walk. Do not let it move dinner.",
+        "mapsUrl": "https://maps.google.com/?cid=3542336080288171193&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Christmas at Kew",
+        "lat": 51.4825,
+        "lng": -0.29453,
+        "type": "spot",
+        "time": "—",
+        "desc": "Cut. An evening light trail in Kew, and it deletes Soho dinner.",
+        "gmap": "Christmas+at+Kew",
+        "detail": "Selected dates 13 November 2026 to 3 January 2027, about 16:20–22:00, advance booking only. It is the best lights trail in London and the wrong night. Saturday dinner is with friends in Shoreditch. Sunday dinner is Flat Iron.",
+        "mapsUrl": "https://maps.google.com/?cid=3539421321709118513",
+        "reserve": "https://www.kew.org/christmas"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "label": "Mon 30",
+    "date": "Monday 30 November · Westminster, 16:35 train, friend at the university",
+    "title": "Westminster, then the train",
+    "color": "#34c759",
+    "images": [
+      {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/4/48/Westminster_palace.jpg",
+        "alt": "Houses of Parliament"
+      },
+      {
+        "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/University_Park_MMB_L1_Trent_Building.jpg/1280px-University_Park_MMB_L1_Trent_Building.jpg",
+        "alt": "Trent Building, University of Nottingham"
+      }
+    ],
+    "route": "The train is the anchor: East Midlands Railway, London St Pancras 16:35, Nottingham 18:18, weekday timetable valid through 12 December 2026. Be on the concourse by 16:10.\n\nSaturday was Wonderland. Sunday was the Southbank market. Monday does not add another market. Winter Wonderland opens at 12:00 today, which collides with the train. Coal Drops Yard’s lights have been on since 26 November, so lunch is already next to them.\n\nThe backpack comes to Westminster. No left luggage. You sleep at a friend’s place at University Park, so book a taxi tonight for about 4:10 to Broadmarsh. Kushi-ya is closed on Monday, so it is not dinner.",
+    "locations": [
+      {
+        "name": "Leave Otherwander",
+        "lat": 51.51509,
+        "lng": -0.13367,
+        "type": "hotel",
+        "time": "10:00",
+        "desc": "Check out. Tube to Westminster with the backpack.",
+        "gmap": "Otherwander+Soho",
+        "detail": "Jubilee line from Bond Street or Piccadilly to Green Park, then Jubilee to Westminster. About 20 minutes. Nothing to store.",
+        "mapsUrl": "https://maps.google.com/?cid=6409728806665118880&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Big Ben and Parliament",
+        "lat": 51.50073,
+        "lng": -0.12463,
+        "type": "spot",
+        "time": "10:40",
+        "desc": "Exterior only. The photo, the bridge, then north for lunch.",
+        "gmap": "Big+Ben+London",
+        "detail": "Look at the clock and the Abbey’s west front. Do not buy the Abbey interior today. You need to be at King’s Cross for lunch and back on the concourse by 16:10.",
+        "mapsUrl": "https://maps.google.com/?cid=13226830714359798441&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Dishoom King’s Cross",
+        "lat": 51.53621,
+        "lng": -0.1255,
+        "type": "food",
+        "time": "12:45",
+        "desc": "Lunch in Coal Drops Yard, next to the station. The yard lights are on. Book.",
+        "gmap": "Dishoom+Kings+Cross",
+        "budget": "£25–35",
+        "detail": "Google: 4.8 from 20,283 reviews, moderate. Monday 8:00–23:00.\nKing’s Cross and Coal Drops Yard switched their Christmas lights on 26 November, so they are already lit. Walk the yard, then sit down.\nSame menu as Shoreditch. You already know the Chicken Ruby. Convenient beats a second Christmas market on a train day.\n小红书 / Instagram / X: no separate note this pass.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Dishoom King's Cross",
+        "x": "https://x.com/search?q=Dishoom%20King's%20Cross&f=live",
+        "reserve": "https://www.dishoom.com/",
+        "mapsUrl": "https://maps.google.com/?cid=8398580231852154415&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Train to Nottingham",
+        "lat": 51.53112,
+        "lng": -0.12587,
+        "type": "transport",
+        "time": "16:35",
+        "desc": "St Pancras to Nottingham, about 1 hour 45. Arrives 18:18.",
+        "gmap": "London+St+Pancras+to+Nottingham",
+        "detail": "East Midlands Railway weekday service. The Saturday arrival would be 18:08 and Sunday 18:15, but 30 November 2026 is a Monday.\nSit on the left or right, it does not matter. Eat before or after, not a rushed station sandwich if Dishoom already happened.",
+        "mapsUrl": "https://maps.google.com/?cid=13343444208639466770&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Nottingham Station",
+        "lat": 52.94744,
+        "lng": -1.14558,
+        "type": "transport",
+        "time": "18:18",
+        "desc": "Meet your friend. Dinner in the centre. You sleep at University Park, not by the station.",
+        "gmap": "Nottingham+railway+station",
+        "detail": "Nottingham Castle is closed this evening. Do not plan the interior.\nBook a taxi tonight from the campus to Broadmarsh for about 4:10. The 4:30 coach does not pass University Park.",
+        "mapsUrl": "https://maps.google.com/?cid=15759225471815694734&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Ye Olde Trip to Jerusalem",
+        "lat": 52.94934,
+        "lng": -1.15265,
+        "type": "drink",
+        "time": "19:00",
+        "desc": "One drink in the cave pub under the castle. Then dinner. Tomorrow starts at 4:30.",
+        "gmap": "Ye+Olde+Trip+to+Jerusalem",
+        "budget": "£6–10",
+        "detail": "Google: 4.6 from 9,016 reviews, moderate. A ten-minute walk from the station, under the castle rock.\nThis is the Nottingham must-go, and it is a pub, not the whole evening. Food exists. Dinner is still Bar Iberico.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Ye Olde Trip to Jerusalem",
+        "mapsUrl": "https://maps.google.com/?cid=13455215248526288062&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Bar Iberico",
+        "lat": 52.9537,
+        "lng": -1.14415,
+        "type": "food",
+        "time": "20:00",
+        "desc": "Hockley tapas. Open Monday until 21:30. Order the pork ribeye, not prawns.",
+        "gmap": "Bar+Iberico+Nottingham",
+        "budget": "£25–40",
+        "detail": "Google: 4.6 from 2,104 reviews, moderate. Monday 11:30–21:30. 17–19 Carlton Street.\n小红书: a February 2026 note likes the pork ribeye and the chicken, and did not like the duck that night. They called it Michelin in passing. That is not a listed star. Treat it as a good tapas room.\nSkip any prawn or calamari plate. Cauliflower, chicken, and the pork are the safe orders.\nInstagram / X: no lookup this pass.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhs": "https://www.rednote.com/search_result/6991efdb000000000a031ef9?xsec_token=ABlCC08t3aFPfsdabHIUJ_kQPULbwKa2xYtWdHY0m02Tk=&xsec_source=",
+        "xhsKeyword": "Bar Iberico Nottingham",
+        "mapsUrl": "https://maps.google.com/?cid=7374538846620979042",
+        "x": "https://x.com/search?q=%22Bar%20Iberico%22%20Nottingham&f=live"
+      },
+      {
+        "name": "Friend's place, University of Nottingham",
+        "lat": 52.93885,
+        "lng": -1.19576,
+        "type": "hotel",
+        "time": "21:30",
+        "desc": "University Park. Taxi to Broadmarsh around 4:10 for the coach.",
+        "gmap": "University+Park+Nottingham",
+        "detail": "The campus is about 15 minutes from the centre by taxi. Broadmarsh is not next door at 4:30. Book that taxi before you go to sleep.",
+        "mapsUrl": "https://maps.google.com/?cid=10028116911813789367"
+      },
+      {
+        "name": "Westminster Abbey",
+        "lat": 51.49937,
+        "lng": -0.1273,
+        "type": "spot",
+        "time": "—",
+        "desc": "Interior ticket. Only if you are willing to miss a relaxed lunch.",
+        "gmap": "Westminster+Abbey",
+        "detail": "A full visit is 60–90 minutes. That collides with the 16:35 train. The outside is the plan. Go in only by shortening lunch.",
+        "reserve": "https://www.westminster-abbey.org/",
+        "mapsUrl": "https://maps.google.com/?cid=15748806018305053562&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Coal Drops Yard",
+        "lat": 51.53603,
+        "lng": -0.12655,
+        "type": "spot",
+        "time": "—",
+        "desc": "You are already here for lunch. The lights are the look.",
+        "gmap": "Coal+Drops+Yard",
+        "detail": "Shops and the canal. German Gymnasium (4.3 from 6,862) and Caravan (4.5 from 6,329) are the lunch swaps if Dishoom is full. Both are moderate and in the yard.",
+        "mapsUrl": "https://maps.google.com/?cid=7000584109458198539&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Winter Wonderland, Monday",
+        "lat": 51.50817,
+        "lng": -0.15831,
+        "type": "spot",
+        "time": "—",
+        "desc": "Only if Saturday was missed. Gates open at 12:00 today. Leave by 14:30.",
+        "gmap": "Hyde+Park+Winter+Wonderland",
+        "detail": "A noon entry can work, and it deletes a calm lunch. Eat bratwurst inside, skip seafood, and take the tube to King’s Cross St Pancras. You still need the concourse by 16:10. Book the 12:00 hour or do not go.",
+        "mapsUrl": "https://maps.google.com/?cid=1463865053577666603",
+        "reserve": "https://hydeparkwinterwonderland.com/tickets-guide/"
+      },
+      {
+        "name": "Annie's Burger Shack",
+        "lat": 52.95195,
+        "lng": -1.14292,
+        "type": "food",
+        "time": "—",
+        "desc": "Broadway. The no-booking Monday backup. Hours were not published in Places.",
+        "gmap": "Annies+Burger+Shack+Nottingham",
+        "budget": "£15–25",
+        "detail": "Google: 4.4 from 6,411 reviews, moderate. Strong volume, so it is the safe walk-in if Bar Iberico is full. Confirm it is open on the night. Burgers, so the seafood rule is easy.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Annies Burger Shack Nottingham",
+        "mapsUrl": "https://maps.google.com/?cid=18422684224507474675&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Nottingham Castle",
+        "lat": 52.94956,
+        "lng": -1.15485,
+        "type": "spot",
+        "time": "—",
+        "desc": "You will walk past the rock on the way to the pub. The interior is not an evening plan.",
+        "gmap": "Nottingham+Castle",
+        "detail": "Closed for a visit by the time you arrive at 18:18, and you leave before dawn. The pub underneath is the version that fits.",
+        "mapsUrl": "https://maps.google.com/?cid=15034872668670255095&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "label": "Tue 1",
+    "date": "Tuesday 1 December · 4:30 coach, EZY434 08:45, drive to Fort William",
+    "title": "Glasgow lunch, then the loch",
+    "color": "#af52de",
+    "images": [
+      {
+        "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/View_of_loch_lomond.JPG/1280px-View_of_loch_lomond.JPG",
+        "alt": "Loch Lomond"
+      },
+      {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/3/3d/A82_Through_Glen_Coe_-_geograph.org.uk_-_309846.jpg",
+        "alt": "The A82 through Glen Coe"
+      }
+    ],
+    "route": "Confirm the 4:30 coach. The National Express 150 timetable valid from 30 October 2026 only lists 08:55 and 15:00 from Broadmarsh, which both miss an 08:45 flight. Older listings had a 4:30 Broadmarsh arriving Digbeth Coach Station at 6:45. If that seat is not on your ticket, take a taxi from Nottingham to Birmingham Airport. The drive is about an hour.\n\nDigbeth is not the airport. A taxi from the coach station to BHX is about 20 minutes and is the connection that protects bag drop. easyJet closes bag drop about 40 minutes before departure.\n\nSunset in Fort William is 15:46. Leave Glasgow by 13:15. Loch Lomond gets the daylight. Glen Coe is a drive, not a 17:00 viewpoint stop.",
+    "locations": [
+      {
+        "name": "Broadmarsh coach",
+        "lat": 52.94926,
+        "lng": -1.14748,
+        "type": "transport",
+        "time": "04:30",
+        "desc": "Nottingham to Birmingham. Confirm this departure still exists on your ticket.",
+        "gmap": "Broadmarsh+Bus+Station+Nottingham",
+        "detail": "You are at University Park, so the taxi booked last night needs to leave around 4:10. The stop is Broadmarsh Bus Station, next to the rail station. A taxi all the way to Birmingham Airport is the backup if the coach is not running or is late.",
+        "mapsUrl": "https://maps.google.com/?cid=16792635912652485582&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Birmingham Coach Station",
+        "lat": 52.47545,
+        "lng": -1.88845,
+        "type": "transport",
+        "time": "06:45",
+        "desc": "Digbeth, if the 4:30 still runs. Taxi to the airport from here.",
+        "gmap": "Birmingham+Coach+Station+Digbeth",
+        "detail": "Do not wait for a city-centre train unless the taxi rank is empty and you are rolling by 7:00. Bag drop is the deadline, not the terminal door.",
+        "mapsUrl": "https://maps.google.com/?cid=12206387273054306182&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Birmingham Airport",
+        "lat": 52.45237,
+        "lng": -1.74351,
+        "type": "transport",
+        "time": "07:30",
+        "desc": "EZY434 to Glasgow at 08:45. Online check-in before you sleep.",
+        "gmap": "Birmingham+Airport",
+        "detail": "easyJet flight U2434. Scheduled arrival Glasgow 09:50, main terminal. Domestic bag drop is tight if the coach slips.",
+        "mapsUrl": "https://maps.google.com/?cid=972684212816795067&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Glasgow Airport",
+        "lat": 55.87004,
+        "lng": -4.43454,
+        "type": "transport",
+        "time": "09:50",
+        "desc": "Taxi to Sixt on Waterloo Street. The airport bus works if the rank is a mess.",
+        "gmap": "Glasgow+Airport",
+        "detail": "The PDF starts the drive at the airport at 14:30. Your car is at Sixt Glasgow City, Q-Park, 101 Waterloo Street, not at the airport desk. Staffed hours are posted 8:00–16:00, so a late-morning pickup is inside them.\nTaxi is about 20–30 minutes with a bag. Airport Express 500 is the cheaper version to the centre.",
+        "mapsUrl": "https://maps.google.com/?cid=2641511492853838603&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Sixt Glasgow City",
+        "lat": 55.86034,
+        "lng": -4.26403,
+        "type": "transport",
+        "time": "11:15",
+        "desc": "Q-Park, 101 Waterloo Street, G2 7DN. Pick up the car.",
+        "gmap": "Sixt+Q-Park+101+Waterloo+Street+Glasgow",
+        "detail": "From Central Station’s Hope Street exit, walk along Waterloo Street. The branch is on the left at the Q-Park. what3words for the branch: ports.grit.cubes.\nPhotograph the car before you leave. You return it at Edinburgh Airport on Friday, not here."
+      },
+      {
+        "name": "Paesano Pizza",
+        "lat": 55.85966,
+        "lng": -4.25058,
+        "type": "food",
+        "time": "12:00",
+        "desc": "94 Miller Street, ten minutes from Sixt. Order the number 7.",
+        "gmap": "Paesano+Pizza+Miller+Street+Glasgow",
+        "budget": "£12–20",
+        "detail": "Google: 4.7 from 8,693 reviews, moderate. Tuesday 11:00–22:30.\n小红书: an October 2026 note from someone who eats here constantly names the city-centre Miller Street shop and the number 7 (tomato, mince, cheese). No seafood.\nInstagram / X: no lookup this pass.\nEat and go. Kelvingrove does not fit a 13:15 departure.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhs": "https://www.rednote.com/search_result/6ac01e3a0000000015014f04?xsec_token=ABkBR5TYxYs_RKmmhmtQ52x_qVRZXs_8FezTU39gpL0gU=&xsec_source=",
+        "xhsKeyword": "Paesano Glasgow Miller Street",
+        "mapsUrl": "https://maps.google.com/?cid=9215977820768437824&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+        "x": "https://x.com/search?q=Paesano%20Glasgow&f=live"
+      },
+      {
+        "name": "Luss, Loch Lomond",
+        "lat": 56.10149,
+        "lng": -4.64225,
+        "type": "spot",
+        "time": "14:15",
+        "desc": "The daylight stop. Village and the shore. Forty minutes, then drive.",
+        "gmap": "Luss+Loch+Lomond",
+        "detail": "About an hour from the city in normal traffic. This replaces the PDF’s longer afternoon in the national park. Sunset is 15:46, so you are back in the car by 15:00.",
+        "mapsUrl": "https://maps.google.com/?cid=6903279201671671614&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Glen Coe, drive through",
+        "lat": 56.67179,
+        "lng": -5.08264,
+        "type": "spot",
+        "time": "15:45",
+        "desc": "The visitor centre is the pull-off if it is open. Otherwise stay on the A82 to Fort William.",
+        "gmap": "Glen+Coe+Visitor+Centre",
+        "detail": "Do not park up at a dark viewpoint. The PDF’s 17:00 stop at Three Sisters is after sunset. The valley is the drive.\nRoads can ice. Deer on the road after dusk. Fuel in Fort William, not in a village after dark.",
+        "mapsUrl": "https://maps.google.com/?cid=15584582060361096451&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "The Garrison Hotel",
+        "lat": 56.8154,
+        "lng": -5.11489,
+        "type": "hotel",
+        "time": "17:30",
+        "desc": "High Street. Park in front. The backpack can stay in the car.",
+        "gmap": "The+Garrison+Hotel+Fort+William",
+        "detail": "Check in, then walk to the Crofter. Glenfinnan in the morning is about 30 minutes. Crannog is a seafood restaurant. Dinner stays on the High Street.",
+        "mapsUrl": "https://maps.google.com/?cid=12274523768085138356"
+      },
+      {
+        "name": "The Crofter",
+        "lat": 56.81862,
+        "lng": -5.11031,
+        "type": "food",
+        "time": "18:30",
+        "desc": "High Street. Haggis, burgers, or fish and chips. Open late.",
+        "gmap": "The+Crofter+Fort+William",
+        "budget": "£15–25",
+        "detail": "Google: 4.4 from 2,983 reviews, moderate. Tuesday until midnight. 11 High Street.\nThe summary repeats haggis, burgers, and fish and chips. Service can be slow. It is the reliable plate after a long drive.\nThe Highland Cook, 72 High Street, scores 4.7 but from only 314 reviews, and it closes at 20:30. Choose it if you want a quieter Scottish plate and you are seated by 19:00.\nCrannog at Garrison West is a seafood restaurant. Skip it. The Geographer’s reviews lean mussels. Skip it too.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "The Crofter Fort William",
+        "mapsUrl": "https://maps.google.com/?cid=13138244568109668226"
+      },
+      {
+        "name": "Three Sisters viewpoint",
+        "lat": 56.66783,
+        "lng": -4.9866,
+        "type": "spot",
+        "time": "—",
+        "desc": "Cut as a stop. Pull off only if you are here before 15:30.",
+        "gmap": "Three+Sisters+Viewpoint+Glencoe",
+        "detail": "The PDF parks you here at 17:00. On 1 December the sun sets at 15:46. A dark car park in Glen Coe is not a viewpoint.",
+        "mapsUrl": "https://maps.google.com/?cid=9784445770673244509&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "George Square",
+        "lat": 55.86116,
+        "lng": -4.25017,
+        "type": "spot",
+        "time": "—",
+        "desc": "Five minutes from Sixt, if the car is not ready at 11:15.",
+        "gmap": "George+Square+Glasgow",
+        "detail": "The only Glasgow sight that fits. Kelvingrove is the West End and loses the daylight at Loch Lomond.",
+        "mapsUrl": "https://maps.google.com/?cid=4114704222897937172&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "The Anchor Line",
+        "lat": 55.86118,
+        "lng": -4.25229,
+        "type": "food",
+        "time": "—",
+        "desc": "Steaks near George Square. Opens at 12:00, so it can miss the departure.",
+        "gmap": "The+Anchor+Line+Glasgow",
+        "budget": "£30–50",
+        "detail": "Google: 4.5 from 2,541 reviews, expensive. Better food than a quick pizza, worse clock. Only if the car pickup is instant and you accept leaving after 13:30.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=14164538726924501063&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Singl-end",
+        "lat": 55.8601,
+        "lng": -4.2481,
+        "type": "food",
+        "time": "—",
+        "desc": "John Street cafe. The lighter lunch if Paesano has a queue.",
+        "gmap": "Singl-end+Merchant+City+Glasgow",
+        "budget": "£12–18",
+        "detail": "Google: 4.5 from 1,706 reviews, moderate. In the Merchant City, close to the car.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=10091838919465256747&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Black Isle Bar",
+        "lat": 56.81612,
+        "lng": -5.11358,
+        "type": "food",
+        "time": "—",
+        "desc": "Fort William pizza and local beer, Gordon Square.",
+        "gmap": "Black+Isle+Bar+Fort+William",
+        "budget": "£15–25",
+        "detail": "Google: 4.5 from 1,774 reviews, moderate. Tuesday until 23:00. The backup if the Crofter is packed. Pizza, so the seafood rule is easy.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=12640998182131276109"
+      },
+      {
+        "name": "The Highland Cook",
+        "lat": 56.81711,
+        "lng": -5.11243,
+        "type": "food",
+        "time": "—",
+        "desc": "72 High Street. Nicer Scottish plate, thinner review count, closes 20:30.",
+        "gmap": "The+Highland+Cook+Fort+William",
+        "budget": "£20–30",
+        "detail": "Google: 4.7 from 314 reviews. The summary repeats haggis, Cullen skink (smoked haddock, which is fish), and sticky toffee. Worth it if you are early. Not the place to arrive at 20:15.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=17428687424993463937&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Kelvingrove",
+        "lat": 55.86859,
+        "lng": -4.2906,
+        "type": "spot",
+        "time": "—",
+        "desc": "Cut today. The West End costs the loch.",
+        "gmap": "Kelvingrove+Art+Gallery",
+        "detail": "Free and excellent. It belongs to a Glasgow day you do not have. Go only if the flight is cancelled.",
+        "mapsUrl": "https://maps.google.com/?cid=5933688758762905598&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "label": "Wed 2",
+    "date": "Wednesday 2 December · Glenfinnan, Eilean Donan, Skye, Loch Ness",
+    "title": "The long Highland day",
+    "color": "#ff3b30",
+    "images": [
+      {
+        "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/Glenfinnan_Viaduct.jpg/1280px-Glenfinnan_Viaduct.jpg",
+        "alt": "Glenfinnan Viaduct"
+      },
+      {
+        "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dc/Eilean_Donan_castle_-_95mm.jpg/1280px-Eilean_Donan_castle_-_95mm.jpg",
+        "alt": "Eilean Donan Castle"
+      }
+    ],
+    "route": "Sunrise at Glenfinnan is 8:33. The Jacobite steam train does not run in December. You are there for the viaduct, not a train.\n\nEilean Donan is open this Wednesday, 10:00–16:00, last entry 15:00. Tickets are sold on the day. Bags stay in the car. Rucksacks are not allowed inside the castle. It is closed on 4 December, which does not affect you.\n\nPortree sunset is 15:45. Leave north Skye by 15:10. The night is The Loch Ness Inn at Lewiston, just past Urquhart, not Inverness. The full Storr hike and the Quiraing are cut.\n\nBail-out: if you leave Eilean Donan after 11:45, or the road is icy, skip Skye. Drive the A87 and the Great Glen to the inn. Urquhart is next door in the morning.",
+    "locations": [
+      {
+        "name": "Leave The Garrison",
+        "lat": 56.8154,
+        "lng": -5.11489,
+        "type": "hotel",
+        "time": "07:20",
+        "desc": "Dark drive, about 30 minutes to the viaduct.",
+        "gmap": "The+Garrison+Hotel+Fort+William",
+        "detail": "Fill the tank in town if the gauge is under half. The backpack stays in the car all day.",
+        "mapsUrl": "https://maps.google.com/?cid=12274523768085138356"
+      },
+      {
+        "name": "Glenfinnan Viaduct",
+        "lat": 56.87622,
+        "lng": -5.43176,
+        "type": "spot",
+        "time": "07:50",
+        "desc": "Be there for sunrise at 8:33. No steam train this month.",
+        "gmap": "Glenfinnan+Viaduct",
+        "detail": "The viewpoint path can be muddy and icy. The monument and the viaduct from the short walk are the visit. Do not wait for a train that is not running. Ordinary ScotRail services are not the Jacobite.\nBack in the car by 9:15.",
+        "mapsUrl": "https://maps.google.com/?cid=17848749755060862951&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Eilean Donan Castle",
+        "lat": 57.2739,
+        "lng": -5.51616,
+        "type": "spot",
+        "time": "10:30",
+        "desc": "Open 10:00. Buy the ticket on site. Forty-five minutes inside is enough.",
+        "gmap": "Eilean+Donan+Castle",
+        "detail": "Official winter hours 25 October–22 December 2026: 10:00–16:00, last admission 15:00. Bags stay in the car. Rucksacks are not allowed inside.\nThe bridge photo is the must, and it does not need a ticket. If the interior queue is long, take the photo and go.\nClosed dates include 4 December. You are here on the 2nd.",
+        "reserve": "https://www.eileandonancastle.com/visit/opening-hours/",
+        "mapsUrl": "https://maps.google.com/?cid=12908316640893953491&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Cafe Arriba, Portree",
+        "lat": 57.4125,
+        "lng": -6.19215,
+        "type": "food",
+        "time": "13:00",
+        "desc": "Lunch above the harbour. Not a seafood restaurant.",
+        "gmap": "Cafe+Arriba+Portree",
+        "budget": "£12–20",
+        "detail": "Google: 4.5 from 1,719 reviews, moderate. The summary repeats breakfast, veggie burgers, and mac and cheese, plus a harbour view.\n小红书 / Instagram / X: no store note this pass.\nThe Granary on Somerled Square is the backup: 4.3 from 1,105 reviews.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Cafe Arriba Portree",
+        "mapsUrl": "https://maps.google.com/?cid=349975796938654381&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Old Man of Storr",
+        "lat": 57.50711,
+        "lng": -6.18308,
+        "type": "spot",
+        "time": "14:10",
+        "desc": "Car-park viewpoint and a short walk. Not the full hike.",
+        "gmap": "Old+Man+of+Storr",
+        "detail": "The trail to the rock is steep, muddy, and slow in December. A full hike deletes Kilt Rock and puts the drive to Loch Ness entirely in the dark. Photos from the lower path, then go.",
+        "mapsUrl": "https://maps.google.com/?cid=7577458695647467797&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Kilt Rock",
+        "lat": 57.61011,
+        "lng": -6.1728,
+        "type": "spot",
+        "time": "14:45",
+        "desc": "Clifftop platform, only if you left the Storr on time.",
+        "gmap": "Kilt+Rock+Mealt+Falls",
+        "detail": "Fifteen minutes north of the Storr. If it is already 15:00, skip it and start the drive. The light is gone by 15:45 and the road back through Portree is the same road.",
+        "mapsUrl": "https://maps.google.com/?cid=10937552945833041826&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "The Loch Ness Inn",
+        "lat": 57.32738,
+        "lng": -4.47389,
+        "type": "hotel",
+        "time": "18:45",
+        "desc": "Lewiston, Drumnadrochit. Check in, then dinner five minutes up the road.",
+        "gmap": "The+Loch+Ness+Inn+Lewiston",
+        "detail": "Coming from Skye you pass Urquhart, then the inn is on the left about two miles further, toward the village. The backpack can stay in the car. Tomorrow’s castle is a five-minute hop back along the A82.",
+        "mapsUrl": "https://maps.google.com/?cid=13081073508335980135"
+      },
+      {
+        "name": "Fiddlers",
+        "lat": 57.3356,
+        "lng": -4.47974,
+        "type": "food",
+        "time": "19:15",
+        "desc": "Drumnadrochit village. Venison, salmon, or haggis. Book. Wednesday dinner from 17:30.",
+        "gmap": "Fiddlers+Drumnadrochit",
+        "budget": "£20–35",
+        "detail": "Google: 4.6 from 1,729 reviews, moderate. The Green, IV63 6TU. Wednesday 12:30–14:30 and 17:30–21:00.\nThe inn’s own kitchen is the walk-downstairs backup. Its reviews mention mussels and venison, so skip the mussels if you eat there.\nInverness is about 20 minutes further. Only drive on if Fiddlers is full.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Fiddlers Drumnadrochit",
+        "mapsUrl": "https://maps.google.com/?cid=9348163954348746964"
+      },
+      {
+        "name": "Scotch & Rye",
+        "lat": 57.47925,
+        "lng": -4.2261,
+        "type": "food",
+        "time": "—",
+        "desc": "Inverness burgers. Only if you have already driven past the inn.",
+        "gmap": "Scotch+and+Rye+Inverness",
+        "budget": "£18–30",
+        "detail": "Google: 4.4 from 2,542 reviews, moderate. Wednesday until 23:00. Queensgate. It adds 20 minutes each way after a long drive. Fiddlers is the dinner.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Scotch and Rye Inverness",
+        "x": "https://x.com/search?q=%22Scotch%20%26%20Rye%22%20Inverness&f=live",
+        "mapsUrl": "https://maps.google.com/?cid=13958556754162728602&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "The Granary, Portree",
+        "lat": 57.41309,
+        "lng": -6.1953,
+        "type": "food",
+        "time": "—",
+        "desc": "Somerled Square. The lunch backup if Cafe Arriba is full.",
+        "gmap": "The+Granary+Portree",
+        "budget": "£12–20",
+        "detail": "Google: 4.3 from 1,105 reviews, moderate. Weaker than Cafe Arriba, same square of town.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=9318997047751670171&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Cafe 1",
+        "lat": 57.47611,
+        "lng": -4.22444,
+        "type": "food",
+        "time": "—",
+        "desc": "Castle Street. Nicer room, and a recent set-menu note was disappointed.",
+        "gmap": "Cafe+1+Inverness",
+        "budget": "£25–40",
+        "detail": "Google: 4.6 from 798 reviews. Wednesday dinner from 17:00. Book if you choose it.\n小红书, October 2026: the £20–26 early menu disappointed, and the salmon plate included scallops and squid. Read the à la carte and skip shellfish if you go.\nX: no login.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhs": "https://www.rednote.com/search_result/6adf8a530000000003006d17?xsec_token=ABb8oMaWtRNqopAPuhdCc3MdBfc-p8ojDcHZaQfmhuT_4=&xsec_source=",
+        "xhsKeyword": "Cafe 1 Inverness",
+        "mapsUrl": "https://maps.google.com/?cid=15451953399829263597&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "The Mustard Seed",
+        "lat": 57.47884,
+        "lng": -4.2281,
+        "type": "food",
+        "time": "—",
+        "desc": "Popular, and the reviews lead with seafood and mussels. Not the default.",
+        "gmap": "The+Mustard+Seed+Inverness",
+        "budget": "£25–40",
+        "detail": "Google: 4.4 from 3,816 reviews. Open until 22:00. Steak exists. Choose it only if you will skip the shellfish plates. Book.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=7831564160462953271&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Quiraing",
+        "lat": 57.64361,
+        "lng": -6.26528,
+        "type": "spot",
+        "time": "—",
+        "desc": "Cut. North of Kilt Rock on a single-track road, after sunset.",
+        "gmap": "Quiraing+Isle+of+Skye",
+        "detail": "The PDF says “if time permits”. In the first week of December it does not. Adding it means you are not back at the Loch Ness Inn.",
+        "mapsUrl": "https://maps.google.com/?cid=9347035385775449479&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "label": "Thu 3",
+    "date": "Thursday 3 December · Urquhart, Fort Augustus, Glenfiddich, Pitlochry",
+    "title": "Loch Ness, then a booked distillery",
+    "color": "#5ac8fa",
+    "images": [
+      {
+        "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Urquhart_Castle_distance_2.jpg/1280px-Urquhart_Castle_distance_2.jpg",
+        "alt": "Urquhart Castle on Loch Ness"
+      },
+      {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Pitlochry_Festival_Theatre_-_geograph.org.uk_-_354929.jpg",
+        "alt": "Pitlochry"
+      }
+    ],
+    "route": "Book two things before you go to bed tonight: Urquhart Castle parking, and an afternoon Glenfiddich tour. Winter tours run about every 90 minutes and the visitor centre closes at 16:30. A morning-only slot does not fit this route.\n\nYou wake at The Loch Ness Inn, five minutes from the castle. The backpack stays in the car. If Glenfiddich has no afternoon tour, cut Speyside. Eat in Fort Augustus and drive south on the A9 so Pitlochry is in daylight. Do not invent a Blair Castle visit until you have checked it is open in December.\n\nSunset is 15:44. The distillery is the indoor reason to be driving after dark. The night is Westlands of Pitlochry.",
+    "locations": [
+      {
+        "name": "Leave The Loch Ness Inn",
+        "lat": 57.32738,
+        "lng": -4.47389,
+        "type": "hotel",
+        "time": "08:35",
+        "desc": "Five minutes back to Urquhart. Sunrise is 8:35.",
+        "gmap": "The+Loch+Ness+Inn+Lewiston",
+        "detail": "The loch view is the reason to be early. The ticketed interior opens at 9:30. The backpack stays in the car.",
+        "mapsUrl": "https://maps.google.com/?cid=13081073508335980135"
+      },
+      {
+        "name": "Urquhart Castle",
+        "lat": 57.32414,
+        "lng": -4.442,
+        "type": "spot",
+        "time": "08:45",
+        "desc": "Watch the light, enter at 9:30, out by 10:45. Parking is booked online.",
+        "gmap": "Urquhart+Castle",
+        "detail": "1 November–31 March: daily 9:30–16:30, last entry 15:30. Closed 25–26 December. You are fine on the 3rd.\nHistoric Environment Scotland says parking must be booked online. Do that tonight. The ruin and the loch are the visit. An hour inside is enough.",
+        "reserve": "https://www.historicenvironment.scot/visit/all/urquhart-castle/plan-your-visit/",
+        "mapsUrl": "https://maps.google.com/?cid=11052157634487332336&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "The Lock Inn, Fort Augustus",
+        "lat": 57.14462,
+        "lng": -4.68192,
+        "type": "food",
+        "time": "12:00",
+        "desc": "Lunch by the locks. Opens at noon. Pie, venison burger, or fish and chips.",
+        "gmap": "The+Lock+Inn+Fort+Augustus",
+        "budget": "£14–22",
+        "detail": "Google: 4.2 from 2,405 reviews, moderate. The score is the weakest meal on this trip, and it is still the right room because it is on the canal. Service can be patchy.\nCobbs cafe is next door (3.9 from 713). Use it only if the Inn is full.\nIf your Glenfiddich slot is 14:00, eat faster and leave by 12:40. Dufftown is about 2 hours via Inverness.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Lock Inn Fort Augustus",
+        "mapsUrl": "https://maps.google.com/?cid=10436401208472741993&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Glenfiddich",
+        "lat": 57.45429,
+        "lng": -3.12792,
+        "type": "spot",
+        "time": "15:00",
+        "desc": "Dufftown. Only with a booked afternoon tour. Allow about 2 hours.",
+        "gmap": "Glenfiddich+Distillery+Dufftown",
+        "detail": "Visitor centre daily 9:30–16:30 in the current listing. September–April tours are five a day, about every 90 minutes. Walk-ins rarely get on.\nThe standard tour is about £30 and 1.5–2 hours. Skip the Thursday Milestones tour. It is 4 hours and £250 and it deletes Pitlochry.\nYou are driving back down the A9 in the dark. The A9 is the main road. Still leave before you are tired, and do not add a second distillery.",
+        "reserve": "https://www.glenfiddich.com/distillery/",
+        "mapsUrl": "https://maps.google.com/?cid=10241312783292005148&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Westlands of Pitlochry",
+        "lat": 56.70466,
+        "lng": -3.73991,
+        "type": "hotel",
+        "time": "18:15",
+        "desc": "160 Atholl Road, north end of town. Parking. The backpack stays in the car.",
+        "gmap": "Westlands+of+Pitlochry",
+        "detail": "About 1 hour 45 from Dufftown if you leave around 17:00. The Old Mill is a short walk. Queen’s View is 15 minutes at dawn.",
+        "mapsUrl": "https://maps.google.com/?cid=11851720698995076308"
+      },
+      {
+        "name": "The Old Mill Inn",
+        "lat": 56.70368,
+        "lng": -3.73422,
+        "type": "food",
+        "time": "19:00",
+        "desc": "Steak pie, a short walk from Westlands. Thursday until 21:00.",
+        "gmap": "The+Old+Mill+Inn+Pitlochry",
+        "budget": "£20–35",
+        "detail": "Google: 4.5 from 4,656 reviews. Thursday 12:00–21:00. The summary repeats steak pie, pork belly, and sometimes live music.\nMoulin Inn is 10 minutes north, 4.3 from 1,415, with its own brewery and a fire. Take it if the Old Mill is full.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Old Mill Inn Pitlochry",
+        "mapsUrl": "https://maps.google.com/?cid=9084021526072713919&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Cobbs, Fort Augustus",
+        "lat": 57.14461,
+        "lng": -4.68161,
+        "type": "food",
+        "time": "—",
+        "desc": "Next to the Lock Inn. The weaker backup.",
+        "gmap": "Cobbs+Fort+Augustus",
+        "budget": "£12–18",
+        "detail": "Google: 3.9 from 713 reviews. Only if the Inn cannot feed you before the distillery slot.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=1411250554838754651&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Moulin Inn",
+        "lat": 56.71313,
+        "lng": -3.72667,
+        "type": "food",
+        "time": "—",
+        "desc": "A mile north of Pitlochry. Fire, brewery, hearty pub food.",
+        "gmap": "Moulin+Inn+Pitlochry",
+        "budget": "£18–30",
+        "detail": "Google: 4.3 from 1,415 reviews. Fine if you have the car and the Old Mill is full. You already have a room at Westlands.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=10236616883884113189&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Blair Castle",
+        "lat": 56.76698,
+        "lng": -3.84559,
+        "type": "spot",
+        "time": "—",
+        "desc": "Only if Glenfiddich is cut and you have checked December hours.",
+        "gmap": "Blair+Castle",
+        "detail": "Ten minutes north of Pitlochry. Many castle houses run short winter weeks. Do not drive there on a hope. The distillery is the booked indoor stop.",
+        "mapsUrl": "https://maps.google.com/?cid=9685746469361666268&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "label": "Fri 4",
+    "date": "Friday 4 December · Queen’s View, Edinburgh, car back by 18:00, flight, Cardiff",
+    "title": "Edinburgh, then the airport",
+    "color": "#ff2d55",
+    "images": [
+      {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/4/40/Queens_View_-_Loch_Tummel.jpg",
+        "alt": "Queen’s View, Loch Tummel"
+      },
+      {
+        "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/Edinburgh_Castle_from_Grass_Market.jpg/1280px-Edinburgh_Castle_from_Grass_Market.jpg",
+        "alt": "Edinburgh Castle from the Grassmarket"
+      }
+    ],
+    "route": "Sunrise in Edinburgh is 8:23. Queen’s View at 8:05 is the dawn stop. The Hermitage is a woodland walk. If the path is ice, look and leave.\n\nPark once in Edinburgh, near the castle. Do not drive the Royal Mile. Castle last entry in winter is 16:00 and the castle closes at 17:00. Be inside by 14:00 and out by 15:30. Leave the city by 16:15.\n\nSixt Edinburgh Airport is staffed 6:30–23:00. Follow “Car Rental Returns” at the hotel roundabout on Eastfield Road. Do not follow sat-nav into the passenger drop-off. It charges you.\n\nThe 20:20 Edinburgh–Bristol flight is not on the published Friday 4 December easyJet list. That list has 17:45 (lands Bristol 19:00) and 21:00 (lands 22:15). Check the ticket. A 22:15 landing does not make the last Bristol–Cardiff train reliable. The last Temple Meads departure is about 22:58. Book a taxi from Bristol Airport to Cardiff before you fly.",
+    "locations": [
+      {
+        "name": "Leave Westlands",
+        "lat": 56.70466,
+        "lng": -3.73991,
+        "type": "hotel",
+        "time": "07:40",
+        "desc": "Fifteen minutes to Queen’s View. It will still be dark when you start.",
+        "gmap": "Westlands+of+Pitlochry",
+        "detail": "Fuel in Pitlochry if you need it. Check the Sixt fuel sheet before you top up for the airport. The backpack stays in the car until Edinburgh Airport.",
+        "mapsUrl": "https://maps.google.com/?cid=11851720698995076308"
+      },
+      {
+        "name": "Queen’s View",
+        "lat": 56.71654,
+        "lng": -3.85702,
+        "type": "spot",
+        "time": "08:05",
+        "desc": "Loch Tummel at sunrise, 8:23. The viewpoint, not a visitor-centre breakfast.",
+        "gmap": "Queens+View+Loch+Tummel",
+        "detail": "The centre itself may not be open this early. The view is outdoors and weather-sensitive. Twenty minutes is enough. If the road is icy, skip it and go straight to Dunkeld in daylight.",
+        "mapsUrl": "https://maps.google.com/?cid=71124986776533983&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "The Hermitage",
+        "lat": 56.55748,
+        "lng": -3.614,
+        "type": "spot",
+        "time": "09:15",
+        "desc": "Douglas firs and the waterfall walk. Turn around if the path is ice.",
+        "gmap": "The+Hermitage+Dunkeld",
+        "detail": "National Trust for Scotland. About 45 minutes on the path. Mud is normal. Ice is the reason to stay in the car park and leave for Edinburgh earlier.",
+        "mapsUrl": "https://maps.google.com/?cid=7536440125291257594&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Dunkeld",
+        "lat": 56.56765,
+        "lng": -3.58622,
+        "type": "spot",
+        "time": "10:20",
+        "desc": "Ten minutes in the village, then the A9 south.",
+        "gmap": "Dunkeld",
+        "detail": "Cathedral and the high street are the look. Do not add a cafe stop that pushes Edinburgh past 12:30.",
+        "mapsUrl": "https://maps.google.com/?cid=7244173543161190152&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Devil's Advocate",
+        "lat": 55.95029,
+        "lng": -3.19167,
+        "type": "food",
+        "time": "12:40",
+        "desc": "Lunch in Advocate’s Close, under the Royal Mile. Steak or haggis. Then the castle.",
+        "gmap": "The+Devils+Advocate+Edinburgh",
+        "budget": "£20–35",
+        "detail": "Google: 4.4 from 5,367 reviews, moderate. Friday noon until late, so the clock is kinder than a restaurant that stops lunch at 14:30.\nHowies on Victoria Street is the Scottish-plate swap (4.4 from 4,428) but Friday lunch is only 12:00–14:30. Sit there only if you are at the table by 12:30.\nMums on Forrest Road (4.5 from 5,035) is comfort food, open all day, ten minutes further.\nDishoom Edinburgh is the famous queue and it is on St Andrew Square, off this walk. Use it only if you have dropped the castle.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhsKeyword": "Devils Advocate Edinburgh",
+        "mapsUrl": "https://maps.google.com/?cid=1344812372800804997&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Edinburgh Castle",
+        "lat": 55.94859,
+        "lng": -3.19991,
+        "type": "spot",
+        "time": "13:50",
+        "desc": "Book a timed ticket. Ninety minutes. Out by 15:30.",
+        "gmap": "Edinburgh+Castle",
+        "detail": "1 October–23 December: open 9:30, last entry 16:00, closes 17:00. Tickets sell out. Book.\nA short visit: the views, the Honours, the Great Hall. The site asks you to allow 2 hours for everything. You do not have 2 hours and a relaxed lunch and an 18:00 car return.\nWalk up from the restaurant. The car stays in one car park.",
+        "reserve": "https://www.edinburghcastle.scot/",
+        "mapsUrl": "https://maps.google.com/?cid=5087412727581510232&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Sixt Edinburgh Airport",
+        "lat": 55.94629,
+        "lng": -3.35995,
+        "type": "transport",
+        "time": "17:15",
+        "desc": "Car Rental Centre, Ingliston, EH12 9FS. On site before 18:00.",
+        "gmap": "Sixt+Edinburgh+Airport",
+        "detail": "Staffed 6:30–23:00, so 18:00 is inside opening. At the roundabout with the Hilton, Moxy, and Hampton, follow Rental car park onto Eastfield Road, then Sixt Return. Do not enter the passenger drop-off.\nRefuel on the way if the agreement says so. Photograph the car at the drop.",
+        "mapsUrl": "https://maps.google.com/?cid=11898471580655107013&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Edinburgh to Bristol",
+        "lat": 55.94718,
+        "lng": -3.36079,
+        "type": "transport",
+        "time": "20:20",
+        "desc": "Your stated departure. The published Friday list shows 17:45 or 21:00, not 20:20. Read the ticket.",
+        "gmap": "Edinburgh+Airport",
+        "detail": "easyJet is the only nonstop airline on this route. Friday 4 December 2026 published times found: U2218 at 17:45 arriving Bristol 19:00, and U2220 at 21:00 arriving 22:15.\nA 19:00 landing can take the Airport Flyer A1 to Temple Meads and a train to Cardiff. A 22:15 landing should be a prebooked taxi. Do not depend on the 22:58 train.",
+        "mapsUrl": "https://maps.google.com/?cid=1824813430506378651&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Bristol Airport taxi",
+        "lat": 51.38305,
+        "lng": -2.71717,
+        "type": "transport",
+        "time": "22:30",
+        "desc": "Prebook the car to Cardiff University, Park Place. About 1 hour 15.",
+        "gmap": "Bristol+Airport",
+        "detail": "Tell the driver the friend’s address at the university, not the station. Friday night after a short flight is the wrong time to invent a bus connection.\nIf you landed at 19:00, the A1 Flyer to Temple Meads and a direct train to Cardiff Central (about 50 minutes), then a 15-minute walk, is enough.",
+        "mapsUrl": "https://maps.google.com/?cid=15583821256756578756&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Friend's place, Cardiff University",
+        "lat": 51.48766,
+        "lng": -3.17911,
+        "type": "hotel",
+        "time": "23:45",
+        "desc": "Park Place. Saturday is free. Sunday’s train is a walk to Central.",
+        "gmap": "Cardiff+University+Park+Place",
+        "detail": "The castle is about 15 minutes on foot. Cardiff Central is about 15–20 minutes with the backpack. Cardiff Bay is the wrong direction on Sunday.",
+        "mapsUrl": "https://maps.google.com/?cid=16171800681084166858"
+      },
+      {
+        "name": "Howies",
+        "lat": 55.94887,
+        "lng": -3.19345,
+        "type": "food",
+        "time": "—",
+        "desc": "Victoria Street. Scottish plates. Lunch service ends 14:30.",
+        "gmap": "Howies+Victoria+Street+Edinburgh",
+        "budget": "£20–35",
+        "detail": "Google: 4.4 from 4,428 reviews. The summary repeats haggis and venison, and a set lunch. Only if you are seated by 12:30.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=9782409705476832238&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Mums",
+        "lat": 55.94604,
+        "lng": -3.19088,
+        "type": "food",
+        "time": "—",
+        "desc": "Forrest Road. Sausages, pie, haggis. Open all day.",
+        "gmap": "Mums+Great+Comfort+Food+Edinburgh",
+        "budget": "£15–25",
+        "detail": "Google: 4.5 from 5,035 reviews, moderate. Friday 9:00–21:00. The unfussy backup, a little further from the castle door.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=7426957343911531522&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Dishoom Edinburgh",
+        "lat": 55.95357,
+        "lng": -3.19252,
+        "type": "food",
+        "time": "—",
+        "desc": "St Andrew Square. The famous one, and it is off the castle walk.",
+        "gmap": "Dishoom+Edinburgh",
+        "budget": "£25–35",
+        "detail": "Google: 4.8 from 21,698 reviews. Use it only if you have dropped the castle and you want one more Dishoom. It queues.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=3422132478708373911&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Arthur's Seat",
+        "lat": 55.94408,
+        "lng": -3.16183,
+        "type": "spot",
+        "time": "—",
+        "desc": "Cut. A hill in fading light on an airport day.",
+        "gmap": "Arthurs+Seat+Edinburgh",
+        "detail": "Sunset is 15:41. You are inside the castle then, and the car is due by 18:00.",
+        "mapsUrl": "https://maps.google.com/?cid=2416821580808277232&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "label": "Sat 5",
+    "date": "Saturday 5 December · Cardiff · nothing scheduled",
+    "title": "You are in Cardiff",
+    "color": "#8e8e93",
+    "images": [
+      {
+        "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/City_Hall%2C_Cardiff.jpg/1280px-City_Hall%2C_Cardiff.jpg",
+        "alt": "City Hall, Cardiff"
+      },
+      {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Clock_Tower%2C_Cardiff_Castle_Wall_-_geograph.org.uk_-_3113970.jpg",
+        "alt": "Cardiff Castle clock tower"
+      }
+    ],
+    "route": "This day is deliberately empty. You are at a friend’s place by Cardiff University. The castle and Central are both a short walk. The pins below are choices, not a plan.",
+    "locations": [
+      {
+        "name": "Friend's place, Cardiff University",
+        "lat": 51.48766,
+        "lng": -3.17911,
+        "type": "hotel",
+        "time": "12:00",
+        "desc": "No schedule. Park Place.",
+        "gmap": "Cardiff+University+Park+Place",
+        "detail": "You asked for this day to stay unplanned. Tomorrow’s train leaves Cardiff Central, about 15–20 minutes on foot with the backpack.",
+        "mapsUrl": "https://maps.google.com/?cid=16171800681084166858"
+      },
+      {
+        "name": "Cardiff Castle",
+        "lat": 51.48223,
+        "lng": -3.18118,
+        "type": "spot",
+        "time": "—",
+        "desc": "If you want one thing. It is also the Sunday morning plan, so you can leave it.",
+        "gmap": "Cardiff+Castle",
+        "detail": "Winter weekends: open 9:00, last entry 16:00, closes 17:00. Book if you go. Doing it today makes Sunday morning a slower breakfast.",
+        "reserve": "https://www.cardiffcastle.com/",
+        "mapsUrl": "https://maps.google.com/?cid=4901500993129965171&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "National Museum Cardiff",
+        "lat": 51.48568,
+        "lng": -3.17685,
+        "type": "spot",
+        "time": "—",
+        "desc": "Free, indoor, Cathays Park. The rainy choice.",
+        "gmap": "National+Museum+Cardiff",
+        "detail": "A short walk from the castle. Better than the Bay if the weather is bad and you want an hour out.",
+        "mapsUrl": "https://maps.google.com/?cid=1162786141127752078&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Cardiff Bay",
+        "lat": 51.45388,
+        "lng": -3.16936,
+        "type": "spot",
+        "time": "—",
+        "desc": "The waterfront. Fine today, because nothing else is booked.",
+        "gmap": "Cardiff+Bay",
+        "detail": "About 20 minutes from the centre. Do it today if you want it. Do not save it for Sunday.",
+        "mapsUrl": "https://maps.google.com/?cid=6457016745754333513&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Asador 44",
+        "lat": 51.48006,
+        "lng": -3.18052,
+        "type": "food",
+        "time": "—",
+        "desc": "Quay Street grill. Saturday is the night it is open late. Skip prawns.",
+        "gmap": "Asador+44+Cardiff",
+        "budget": "£40–60",
+        "detail": "Google: 4.6 from 994 reviews, expensive. Saturday 12:00–23:00. Steak is the point. Fewer reviews than Pasture, which is being saved for Sunday lunch before the train.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=1788399341554483047&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "The Potted Pig",
+        "lat": 51.48074,
+        "lng": -3.18045,
+        "type": "food",
+        "time": "—",
+        "desc": "Old bank vault on High Street. Lamb and pork, not a seafood room.",
+        "gmap": "The+Potted+Pig+Cardiff",
+        "budget": "£25–40",
+        "detail": "Google: 4.6 from 1,515 reviews, moderate. Saturday lunch and dinner. A strong dinner if you do not want the Asador spend.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=4389459605258754100&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "label": "Sun 6",
+    "date": "Sunday 6 December · Castle, lunch, train, MH1 at 21:25 from Terminal 4",
+    "title": "Cardiff to Heathrow",
+    "color": "#ffcc00",
+    "images": [
+      {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Clock_Tower%2C_Cardiff_Castle_Wall_-_geograph.org.uk_-_3113970.jpg",
+        "alt": "Cardiff Castle clock tower"
+      },
+      {
+        "src": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1b/City_Hall%2C_Cardiff.jpg/1280px-City_Hall%2C_Cardiff.jpg",
+        "alt": "City Hall, Cardiff"
+      }
+    ],
+    "route": "MH1 departs Heathrow Terminal 4 at 21:25. Be at Terminal 4 by 18:30, and aim for 17:15 so one cancelled train still works.\n\nBook a Cardiff Central to London Paddington train that leaves between 13:40 and 14:10. The journey is about 2 hours. At Paddington, take the Elizabeth line to Heathrow Terminals 2 & 3, then the free train to Terminal 4. The Elizabeth line does not serve T4 itself.\n\nA 15:00 train is the spare, and it is the last comfortable one. National Express route 202 does stop at Terminal 4, but it is about 3–4 hours and Sunday traffic can slip. Use the coach only if you leave Sophia Gardens by 13:00.\n\nDo not add Cardiff Bay today.",
+    "locations": [
+      {
+        "name": "Cardiff Castle",
+        "lat": 51.48223,
+        "lng": -3.18118,
+        "type": "spot",
+        "time": "09:30",
+        "desc": "Winter Sunday: open 9:00, last entry 16:00. You are leaving at lunch.",
+        "gmap": "Cardiff+Castle",
+        "detail": "Walk from Park Place, about 15 minutes. Book the ticket. Ninety minutes in the grounds and the house, then walk down High Street to lunch. If you already did the castle on Saturday, sleep in and start with the museum or a slower breakfast.",
+        "reserve": "https://www.cardiffcastle.com/",
+        "mapsUrl": "https://maps.google.com/?cid=4901500993129965171&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Pasture",
+        "lat": 51.48086,
+        "lng": -3.18002,
+        "type": "food",
+        "time": "12:00",
+        "desc": "Steak on High Street, next to the castle. Sunday lunch until 20:00. Book.",
+        "gmap": "Pasture+Cardiff",
+        "budget": "£40–55",
+        "detail": "Google: 4.8 from 2,887 reviews. Sunday 12:00–20:00.\n小红书: a June 2026 solo note. Sirloin was a large portion with a fatty edge. The padrón peppers were the hit. Service took an uneaten mushroom off the bill. About £46 after service for that meal.\nInstagram / X: no lookup this pass.\nYou need to be at the station by 13:30. Order the steak and one vegetable, not a long tasting lunch.\nAsador 44 is the swap if Pasture is full. Sunday it serves lunch until 16:00 and is more expensive, with fewer reviews (4.6 from 994).",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "xhs": "https://www.rednote.com/search_result/6a32e308000000000f029077?xsec_token=AB8s7kjnPn5sVkyODWmV6BkkO9A-jOfA9y56idqucpPrg=&xsec_source=",
+        "xhsKeyword": "Pasture Cardiff",
+        "x": "https://x.com/search?q=Pasture%20Cardiff&f=live",
+        "mapsUrl": "https://maps.google.com/?cid=17932482362606271316&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Cardiff Central",
+        "lat": 51.47596,
+        "lng": -3.17903,
+        "type": "transport",
+        "time": "13:45",
+        "desc": "Train to London Paddington. Target a departure around 14:00.",
+        "gmap": "Cardiff+Central",
+        "detail": "Walk from the university, about 15–20 minutes with the backpack. GWR or another Paddington service, booked ahead. About 2 hours. Keep the following train as the spare.\nBe on the platform 15 minutes early.",
+        "mapsUrl": "https://maps.google.com/?cid=11287376199918841567&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Heathrow Terminal 4",
+        "lat": 51.4597,
+        "lng": -0.44736,
+        "type": "transport",
+        "time": "17:15",
+        "desc": "MH1 to Kuala Lumpur at 21:25. Malaysia Airlines, Terminal 4.",
+        "gmap": "Heathrow+Terminal+4",
+        "detail": "From Paddington: Elizabeth line to Heathrow Terminals 2 & 3, then the free inter-terminal train to Terminal 4.\nLong-haul check-in is more comfortable at three hours. 17:15 is the aim. 18:30 is the late side. The gate is not the place to discover the bag is at Paddington.",
+        "mapsUrl": "https://maps.google.com/?cid=14393833855376895021&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "National Museum Cardiff",
+        "lat": 51.48568,
+        "lng": -3.17685,
+        "type": "spot",
+        "time": "—",
+        "desc": "If the castle is packed or you already saw it yesterday.",
+        "gmap": "National+Museum+Cardiff",
+        "detail": "Free and indoor. Keep it to an hour. Lunch is still at noon on High Street.",
+        "mapsUrl": "https://maps.google.com/?cid=1162786141127752078&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "The Potted Pig",
+        "lat": 51.48074,
+        "lng": -3.18045,
+        "type": "food",
+        "time": "—",
+        "desc": "High Street backup. Sunday lunch until 18:00.",
+        "gmap": "The+Potted+Pig+Cardiff",
+        "budget": "£25–40",
+        "detail": "Google: 4.6 from 1,515 reviews. Lamb shoulder, pork belly, Sunday roast. On the same street as Pasture, so it does not move the train.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=4389459605258754100&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Asador 44",
+        "lat": 51.48006,
+        "lng": -3.18052,
+        "type": "food",
+        "time": "—",
+        "desc": "Sunday lunch until 16:00. Too slow if you sit down after 13:00.",
+        "gmap": "Asador+44+Cardiff",
+        "budget": "£40–60",
+        "detail": "Google: 4.6 from 994 reviews, expensive. Fine only if Pasture and the Pig are both full and you order fast. Skip the prawns.",
+        "pay": {
+          "card": 1,
+          "cash": 0.5
+        },
+        "mapsUrl": "https://maps.google.com/?cid=1788399341554483047&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      },
+      {
+        "name": "Cardiff Bay",
+        "lat": 51.45388,
+        "lng": -3.16936,
+        "type": "spot",
+        "time": "—",
+        "desc": "Cut today. It is the wrong direction from the station.",
+        "gmap": "Cardiff+Bay",
+        "detail": "Saturday was the day for the Bay. Sunday ends at Paddington.",
+        "mapsUrl": "https://maps.google.com/?cid=6457016745754333513&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA"
+      }
+    ]
+  }
+];
+
+function overviewContent() {
+  return "\n<div class=\"hero\"><h1>UK, 28 Nov–6 Dec</h1><p class=\"subtitle\">A reference route. Weather, a late coach, or a closed road can override it.</p></div>\n<div class=\"info-grid\">\n  <div class=\"info-card\"><div class=\"label\">Sleep</div><div class=\"value\">ibis Shoreditch 28 · Otherwander 29 · friend at University of Nottingham 30 · The Garrison · The Loch Ness Inn · Westlands of Pitlochry · friend at Cardiff University</div></div>\n  <div class=\"info-card\"><div class=\"label\">Flights</div><div class=\"value\">MH2 into T4 · EZY434 1 Dec 08:45 · EDI–Bristol 4 Dec · MH1 6 Dec 21:25 T4</div></div>\n  <div class=\"info-card\"><div class=\"label\">Moving</div><div class=\"value\">Contactless in London. Hire car Sixt Glasgow City to Edinburgh Airport. Train back to Heathrow.</div></div>\n  <div class=\"info-card\"><div class=\"label\">Food rule</div><div class=\"value\">No shellfish. Fish and chips is fine. Skip crab, mussels, prawns, oysters.</div></div>\n</div>\n<div class=\"section-head\">Before you trust the days</div>\n<div class=\"pay-summary\"><h4>Three timetable checks</h4>\n<p>MH2’s published winter schedule lands at 05:35 the morning after it leaves Kuala Lumpur. Saturday 28 November in London is your plan only if the ticket arrives that morning.</p>\n<p>The 4:30 Nottingham–Birmingham coach is not on the National Express timetable that started 30 October 2026. Confirm the seat, or taxi to Birmingham Airport.</p>\n<p>Friday 4 December’s published Edinburgh–Bristol flights are 17:45 and 21:00, not 20:20. A late landing needs a prebooked taxi to Cardiff.</p></div>\n<div class=\"section-head\">Book</div>\n<div class=\"pay-summary\"><h4>The short list</h4>\n<p>A Saturday arrival hour at Hyde Park Winter Wonderland, Dishoom Shoreditch, Manteca at 19:30, Dishoom King’s Cross, Bar Iberico, Fiddlers, Urquhart parking, a Glenfiddich afternoon tour, Edinburgh Castle, Pasture, the Bristol Airport taxi to Cardiff University, the 4:10 Nottingham taxi, and the Sunday train to Paddington. Skate tickets only if you actually want to skate.</p>\n<p class=\"ok-text\">Card and contactless work almost everywhere on this route. Carry a little cash for Beigel Bake and a market.</p></div>\n<div class=\"section-head\">Days</div>\n<div class=\"day-list\"><div class=\"card\" onclick=\"go(1)\"><div class=\"name\"><span class=\"dot\" style=\"background:#ff9500\"></span>Sat 28 · Flowers, Wonderland, lights</div><div class=\"desc\">Saturday 28 November · Columbia Road, Hyde Park, Regent Street · ibis Shoreditch</div></div><div class=\"card\" onclick=\"go(2)\"><div class=\"name\"><span class=\"dot\" style=\"background:#007aff\"></span>Sun 29 · Museum, then the river market</div><div class=\"desc\">Sunday 29 November · Museum, Somerset House, Southbank · Otherwander</div></div><div class=\"card\" onclick=\"go(3)\"><div class=\"name\"><span class=\"dot\" style=\"background:#34c759\"></span>Mon 30 · Westminster, then the train</div><div class=\"desc\">Monday 30 November · Westminster, 16:35 train, friend at the university</div></div><div class=\"card\" onclick=\"go(4)\"><div class=\"name\"><span class=\"dot\" style=\"background:#af52de\"></span>Tue 1 · Glasgow lunch, then the loch</div><div class=\"desc\">Tuesday 1 December · 4:30 coach, EZY434 08:45, drive to Fort William</div></div><div class=\"card\" onclick=\"go(5)\"><div class=\"name\"><span class=\"dot\" style=\"background:#ff3b30\"></span>Wed 2 · The long Highland day</div><div class=\"desc\">Wednesday 2 December · Glenfinnan, Eilean Donan, Skye, Loch Ness</div></div><div class=\"card\" onclick=\"go(6)\"><div class=\"name\"><span class=\"dot\" style=\"background:#5ac8fa\"></span>Thu 3 · Loch Ness, then a booked distillery</div><div class=\"desc\">Thursday 3 December · Urquhart, Fort Augustus, Glenfiddich, Pitlochry</div></div><div class=\"card\" onclick=\"go(7)\"><div class=\"name\"><span class=\"dot\" style=\"background:#ff2d55\"></span>Fri 4 · Edinburgh, then the airport</div><div class=\"desc\">Friday 4 December · Queen’s View, Edinburgh, car back by 18:00, flight, Cardiff</div></div><div class=\"card\" onclick=\"go(8)\"><div class=\"name\"><span class=\"dot\" style=\"background:#8e8e93\"></span>Sat 5 · You are in Cardiff</div><div class=\"desc\">Saturday 5 December · Cardiff · nothing scheduled</div></div><div class=\"card\" onclick=\"go(9)\"><div class=\"name\"><span class=\"dot\" style=\"background:#ffcc00\"></span>Sun 6 · Cardiff to Heathrow</div><div class=\"desc\">Sunday 6 December · Castle, lunch, train, MH1 at 21:25 from Terminal 4</div></div></div>\n<div class=\"section-head\">Legend</div>\n<div class=\"legend\">\n  <div class=\"legend-item\"><div class=\"legend-dot\" style=\"background:var(--tint-red)\"></div>Food</div>\n  <div class=\"legend-item\"><div class=\"legend-dot\" style=\"background:var(--tint-blue)\"></div>Sight</div>\n  <div class=\"legend-item\"><div class=\"legend-dot\" style=\"background:var(--tint-purple)\"></div>Drink</div>\n  <div class=\"legend-item\"><div class=\"legend-dot\" style=\"background:var(--tint-orange)\"></div>Hotel</div>\n</div>";
+}
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  ENGINE — Do not modify below unless customizing behavior   ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+const map = L.map('map', { center: [HOTEL.lat || 35.69, HOTEL.lng || 139.74], zoom: 12, zoomControl: false, attributionControl: true });
+L.control.zoom({ position: 'topright' }).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=' + encodeURIComponent(window.MAP_KEY || ''), {
+  maxZoom: 19,
+  attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+}).addTo(map);
+
+/* ── Geolocation ── */
+const LocateControl = L.Control.extend({
+  options: { position: 'bottomright' },
+  onAdd() {
+    const btn = L.DomUtil.create('button', 'locate-btn');
+    btn.innerHTML = '📍';
+    btn.title = '我的位置';
+    L.DomEvent.disableClickPropagation(btn);
+    btn.addEventListener('click', () => {
+      btn.classList.add('active');
+      map.locate({ setView: true, maxZoom: 15 });
+    });
+    this._btn = btn;
+    return btn;
+  }
+});
+new LocateControl().addTo(map);
+let locMarker, locCircle;
+map.on('locationfound', e => {
+  const r = e.accuracy / 2;
+  if (locMarker) { locMarker.setLatLng(e.latlng); locCircle.setLatLng(e.latlng).setRadius(r); }
+  else {
+    locMarker = L.marker(e.latlng, {
+      icon: L.divIcon({ className:'', html:'<div style="width:14px;height:14px;border-radius:50%;background:#007aff;border:2.5px solid #fff;box-shadow:0 0 6px rgba(0,122,255,.5)"></div><div class="loc-pulse" style="position:absolute;top:0;left:0"></div>', iconSize:[14,14], iconAnchor:[7,7] }),
+      zIndexOffset: 2000
+    }).addTo(map);
+    locCircle = L.circle(e.latlng, { radius: r, color: '#007aff', fillColor: '#007aff', fillOpacity: .08, weight: 1 }).addTo(map);
+  }
+});
+map.on('locationerror', () => {});
+
+function icon(color, emoji) {
+  return L.divIcon({ className: '', html: `<div style="width:28px;height:28px;border-radius:50%;background:${color};border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.18)">${emoji||''}</div>`, iconSize: [28,28], iconAnchor: [14,14], popupAnchor: [0,-16] });
+}
+
+if (HOTEL.lat) L.marker([HOTEL.lat, HOTEL.lng], { icon: icon('#ff9500','🏨'), zIndexOffset: 1000 }).addTo(map).bindPopup(`<b>${HOTEL.name}</b>`);
+
+let markers = [], polylines = [];
+const emojis = { food:'🍽️', spot:'📍', hotel:'🏨', transport:'🚃', drink:'🍺' };
+
+function clearMap() { markers.forEach(m=>map.removeLayer(m)); polylines.forEach(p=>map.removeLayer(p)); markers=[]; polylines=[]; }
+
+function showDay(idx) {
+  clearMap();
+  if (idx === 0) {
+    const pts = [];
+    DAYS.forEach(d => d.locations.forEach(l => { if(Number.isFinite(+l.lat) && Number.isFinite(+l.lng)) pts.push([+l.lat,+l.lng]); }));
+    if(pts.length) map.fitBounds(pts, {padding:[30,30]});
+    DAYS.slice(1).forEach(d => {
+      d.locations.filter(l=>l.time!=='—' && Number.isFinite(+l.lat) && Number.isFinite(+l.lng)).forEach(l => {
+        const m = L.circleMarker([+l.lat,+l.lng], { radius:4, fillColor:d.color, color:'#fff', weight:1.5, fillOpacity:.9 }).addTo(map).bindPopup(`<b>${l.name}</b><br><span style="color:#86868b">${d.label}</span>`);
+        markers.push(m);
+      });
+    });
+    return;
+  }
+  const day = DAYS.find(d=>d.id===idx);
+  if(!day) return;
+  const coords = [];
+  day.locations.forEach(l => {
+    if(!Number.isFinite(+l.lat) || !Number.isFinite(+l.lng)) return;
+    const m = L.marker([+l.lat,+l.lng], { icon: icon(day.color, emojis[l.type]||'📌') }).addTo(map);
+    const gmapQ = l.gmap||encodeURIComponent(l.name+' Tokyo');
+    const popupLinks = [
+      `<a href="#" onclick="event.preventDefault();openAS('${l.name.replace(/'/g,"\\'")}',${l.lat},${l.lng},'${gmapQ}')">📍 Maps</a>`,
+      l.xhs ? `<a href="${l.xhs}" target="_blank">📕 小红书</a>` : '',
+      l.mapsUrl ? `<a href="${l.mapsUrl}" target="_blank">⭐ Google</a>` : '',
+      l.instagram ? `<a href="${l.instagram}" target="_blank">📷 Instagram</a>` : '',
+      l.x ? `<a href="${l.x}" target="_blank">𝕏 X</a>` : ''
+    ].filter(Boolean).join(' · ');
+    m.bindPopup(`<b>${l.name}</b>${l.time!=='—'?'<br><span style="color:#86868b">'+l.time+'</span>':''}<br>${l.desc}${l.budget?'<br><span style="color:#ff9500">'+l.budget+'</span>':''}<br>${popupLinks}`);
+    markers.push(m);
+    if(l.time!=='—') coords.push([l.lat,l.lng]);
+  });
+  if(coords.length>1) { const pl = L.polyline(coords, { color:day.color, weight:2.5, opacity:.5, dashArray:'6,5' }).addTo(map); polylines.push(pl); }
+  if(coords.length) map.fitBounds(coords, { padding:[40,40], maxZoom:14 });
+}
+
+// ══════════ RENDER ══════════
+function payChips(pay) {
+  if(!pay) return '';
+  let h = '<div class="pays">';
+  const m = { cash:'💴', card:'💳', suica:'Suica', paypay:'PayPay', alipay:'支付宝', wechat:'微信' };
+  for(const [k,label] of Object.entries(m)) {
+    if(pay[k]!==undefined) { const c = pay[k]===1?'ok':pay[k]===0.5?'idk':'no'; h += `<span class="pay ${c}">${label}</span>`; }
+  }
+  return h+'</div>';
+}
+
+// ── 运行环境检测：在第三方 App 的 WebView 里，自定义 scheme 基本会被拦截 ──
+const IN_APP_WEBVIEW = (() => {
+  const ua = (navigator.userAgent || '').toLowerCase();
+  return /micromessenger|xhs|xhsdiscover|discover\/|tiktok|aweme|weibo|qq\/|qqbrowser|alipayclient|dingtalk|lark|feishu|ucbrowser|baiduboxapp|toutiao|newsarticle/.test(ua);
+})();
+
+function xhsKeyword(loc) {
+  if(loc.xhsKeyword) return loc.xhsKeyword.trim();
+  return (loc.name||'').replace(/⭐.*$/g,'').replace(/（.*?）/g,'').replace(/\(.*?\)/g,'').replace(/\s+/g,' ').trim();
+}
+function xhsAppUrl(loc) { return `xhsdiscover://search/result?keyword=${encodeURIComponent(xhsKeyword(loc))}&target_search=notes&source=deeplink`; }
+function xhsWebUrl(loc) { return `https://www.rednote.com/search_result?keyword=${encodeURIComponent(xhsKeyword(loc))}&source=web_explore_feed`; }
+
+window._extLocs = {};
+DAYS.forEach(d => d.locations.forEach(l => { window._extLocs[`${d.id}::${l.name}`] = l; }));
+window._xhsLocs = window._extLocs;
+
+function openXhs(key) {
+  const loc = window._extLocs[key]; if(!loc) return false;
+  window.location.href = IN_APP_WEBVIEW ? xhsWebUrl(loc) : xhsAppUrl(loc);
+  return false;
+}
+
+function locCard(loc, dayIdx) {
+  const dot = loc.type==='food'?'food':loc.type==='spot'?'spot':loc.type==='drink'?'drink':loc.type==='hotel'?'hotel':'transport';
+  const bdg = loc.type==='food'?'<span class="badge food">Food</span>':loc.type==='spot'?'<span class="badge spot">See</span>':loc.type==='drink'?'<span class="badge drink">Drink</span>':'';
+  const uid = `d${dayIdx}-${loc.name.replace(/\W/g,'')}`;
+  const locKey = `${dayIdx}::${loc.name}`;
+  const gmapQ = loc.gmap||encodeURIComponent(loc.name+' Tokyo');
+  let lnk = `<button class="btn nav" onclick="openAS('${loc.name.replace(/'/g,"\\'")}',${loc.lat},${loc.lng},'${gmapQ}')">📍 Maps</button>`;
+  if(loc.xhs||loc.xhsKeyword) {
+    const xhsHref = IN_APP_WEBVIEW ? xhsWebUrl(loc) : xhsAppUrl(loc);
+    const xhsLabel = IN_APP_WEBVIEW ? '📕 小红书' : '📕 小红书 App';
+    lnk += `<a href="${xhsHref}" onclick="return openXhs('${locKey.replace(/'/g,"\\'")}')" class="btn xhs">${xhsLabel}</a>`;
+  }
+  if(loc.mapsUrl) lnk += `<a href="${loc.mapsUrl}" target="_blank" class="btn maps">⭐ Google</a>`;
+  if(loc.instagram) lnk += `<a href="${loc.instagram}" target="_blank" class="btn ig">📷 Instagram</a>`;
+  if(loc.x) lnk += `<a href="${loc.x}" target="_blank" class="btn x">𝕏 X</a>`;
+  if(loc.reserve) lnk += `<a href="${loc.reserve}" target="_blank" class="btn rsv">📅 Book</a>`;
+  return `<div class="tl-item"><div class="tl-dot ${dot}"></div><div class="card" onclick="if(!event.target.closest('.btn,.links'))toggle('${uid}')"><div class="time">${loc.time!=='—'?loc.time:'Choice'}</div><div class="name">${bdg} ${loc.name}</div><div class="desc">${loc.desc}</div>${loc.budget?'<div class="budget">'+loc.budget+'</div>':''}${payChips(loc.pay)}<div class="links">${lnk}</div>${loc.detail?'<div class="details" id="'+uid+'">'+loc.detail.replace(/\n/g,'<br>')+'</div>':''}</div></div>`;
+}
+
+function renderDay(idx) {
+  const d = DAYS.find(x=>x.id===idx); if(!d) return '';
+  const main = d.locations.filter(l=>l.time!=='—');
+  const alt = d.locations.filter(l=>l.time==='—');
+  let h = `<div class="day-head"><h2>${d.title}</h2><p>${d.date}</p></div>`;
+  if (Array.isArray(d.images) && d.images.length) {
+    const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+    h += `<div class="day-photos${d.images.length === 1 ? ' one' : ''}">`;
+    d.images.slice(0, 2).forEach(img => { h += `<figure><img src="${esc(img.src)}" alt="${esc(img.alt || '')}" loading="lazy"><figcaption>${esc(img.alt || '')}</figcaption></figure>`; });
+    h += '</div>';
+  }
+  if (d.route) h += `<div class="route-bar">${String(d.route).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>`;
+  if(main.length) { h += '<div class="section-head">Plan</div><div class="timeline">'; main.forEach(l => h += locCard(l, idx)); h += '</div>'; }
+  if(alt.length) { h += '<div class="section-head">Choices</div><div class="timeline">'; alt.forEach(l => h += locCard(l, idx)); h += '</div>'; }
+  return h;
+}
+
+// ══════════ NAV ══════════
+let cur = 0;
+const tabsEl = document.getElementById('tabs');
+const contentEl = document.getElementById('content');
+
+DAYS.forEach(d => {
+  const btn = document.createElement('button');
+  btn.className = 'tab' + (d.id===0?' active':'');
+  btn.dataset.day = d.id;
+  btn.textContent = d.label;
+  tabsEl.appendChild(btn);
+});
+
+function go(idx) {
+  cur = idx;
+  tabsEl.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', +t.dataset.day===idx));
+  contentEl.innerHTML = idx===0 ? overviewContent() : renderDay(idx);
+  showDay(idx);
+  contentEl.scrollTo({top:0});
+  const tab = tabsEl.querySelector(`[data-day="${idx}"]`);
+  if(tab) tab.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+}
+
+function toggle(id) { const el=document.getElementById(id); if(el) el.classList.toggle('closed'); }
+
+tabsEl.addEventListener('click', e => { const t=e.target.closest('.tab'); if(t) go(+t.dataset.day); });
+
+go(0);
+
+/* ── Action Sheet for Navigation ── */
+const asOverlay = document.createElement('div');
+asOverlay.className = 'as-overlay';
+asOverlay.innerHTML = `<div class="as-sheet">
+  <div class="as-group" id="as-opts"></div>
+  <div class="as-group"><button class="as-item as-cancel" onclick="closeAS()">取消</button></div>
+</div>`;
+document.body.appendChild(asOverlay);
+asOverlay.addEventListener('click', e => { if (e.target === asOverlay) closeAS(); });
+
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+function amapAppUrl(name, lat, lng) {
+  const scheme = IS_IOS ? 'iosamap' : 'androidamap';
+  return `${scheme}://viewMap?sourceApplication=trip&poiname=${encodeURIComponent(name)}&lat=${lat}&lon=${lng}&dev=0`;
+}
+function amapWebUrl(name, lat, lng) {
+  return `https://uri.amap.com/marker?position=${lng},${lat}&name=${encodeURIComponent(name)}&src=trip&coordinate=wgs84&callnative=1`;
+}
+function openAmap(name, lat, lng) {
+  if (IN_APP_WEBVIEW) { window.open(amapWebUrl(name, lat, lng)); return; }
+  window.location.href = amapAppUrl(name, lat, lng);
+}
+
+function openAS(name, lat, lng, gmap) {
+  const q = gmap || encodeURIComponent(name + ' Tokyo');
+  const encName = encodeURIComponent(name);
+  const safeName = name.replace(/'/g,"\\'");
+  // WebView 内 maps:// 通常被拦截，改用 https Apple Maps URL —— iOS 系统会自动拉起 Apple Maps
+  const appleUrl = IN_APP_WEBVIEW
+    ? `https://maps.apple.com/?q=${lat},${lng}&ll=${lat},${lng}&name=${encName}`
+    : `maps://maps.apple.com/?q=${lat},${lng}&name=${encName}`;
+  const googleUrl = `https://www.google.com/maps/search/?api=1&query=${q}`;
+  document.getElementById('as-opts').innerHTML =
+    `<button class="as-item" onclick="window.open('${appleUrl}');closeAS()">🍎 Apple Maps</button>` +
+    `<button class="as-item" onclick="window.open('${googleUrl}');closeAS()">🗺️ Google Maps</button>` +
+    `<button class="as-item" onclick="openAmap('${safeName}',${lat},${lng});closeAS()">🧭 高德地图 App</button>`;
+  asOverlay.classList.add('show');
+}
+function closeAS() { asOverlay.classList.remove('show'); }
+</script>
+</body>
+</html>
